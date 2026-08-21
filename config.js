@@ -69,10 +69,41 @@ module.exports = {
     { token: 'planetscale', name: 'PlanetScale', verified: true },
     { token: 'cockroachlabs', name: 'Cockroach Labs', verified: true },
     { token: 'dremio', name: 'Dremio', verified: true },
-    // Dead tokens - 404 on 20 Aug 2026. Wrong token, not a dead company.
-    // Re-enable if you find the real one via the README URL trick.
-    // { token: 'plaid', name: 'Plaid', verified: false },   // 404 here - live on Ashby, see below
-    // { token: 'hasura', name: 'Hasura', verified: false }, // 404
+    // --- Second discover.js sweep, 22 Aug 2026 (439 tokens, 170 live). ---
+    { token: 'singlestore', name: 'SingleStore', verified: true },  // 4 India backend
+    { token: 'observeai', name: 'Observe.AI', verified: true },  // 2 India backend
+    { token: 'sezzle', name: 'Sezzle', verified: true },  // 2 India backend
+    { token: 'anthropic', name: 'Anthropic', verified: true },  // 2 India backend
+    { token: 'hackerrank', name: 'HackerRank', verified: true },  // 1 India backend
+    { token: 'highradius', name: 'HighRadius', verified: true },
+    { token: 'workato', name: 'Workato', verified: true },
+    { token: 'celigo', name: 'Celigo', verified: true },
+    { token: 'instacart', name: 'Instacart', verified: true },
+    { token: 'lyft', name: 'Lyft', verified: true },
+    { token: 'pinterest', name: 'Pinterest', verified: true },
+    { token: 'discord', name: 'Discord', verified: true },
+    { token: 'reddit', name: 'Reddit', verified: true },
+    { token: 'robinhood', name: 'Robinhood', verified: true },
+    { token: 'block', name: 'Block', verified: true },
+    { token: 'affirm', name: 'Affirm', verified: true },
+    { token: 'chime', name: 'Chime', verified: true },
+    { token: 'marqeta', name: 'Marqeta', verified: true },
+    { token: 'mercury', name: 'Mercury', verified: true },
+    { token: 'thunes', name: 'Thunes', verified: true },
+    { token: 'ebury', name: 'Ebury', verified: true },
+    { token: 'circleci', name: 'CircleCI', verified: true },
+    { token: 'buildkite', name: 'Buildkite', verified: true },
+    { token: 'launchdarkly', name: 'LaunchDarkly', verified: true },
+    { token: 'honeycomb', name: 'Honeycomb', verified: true },
+    { token: 'cribl', name: 'Cribl', verified: true },
+    { token: 'orca', name: 'Orca Security', verified: true },
+    { token: 'tigera', name: 'Tigera', verified: true },
+    { token: 'grafanalabs', name: 'Grafana Labs', verified: true },
+    { token: 'imply', name: 'Imply', verified: true },
+    { token: 'scaleai', name: 'Scale AI', verified: true },
+    { token: 'comet', name: 'Comet', verified: true },
+    { token: 'assemblyai', name: 'AssemblyAI', verified: true },
+    { token: 'lightningai', name: 'Lightning AI', verified: true },
   ],
 
   // The EU Greenhouse host does not exist. Kept as an empty array because
@@ -94,7 +125,13 @@ module.exports = {
     { token: 'paytm', name: 'Paytm', verified: true },
     { token: 'pocketfm', name: 'Pocket FM', verified: true },
     { token: 'neon', name: 'Neon', verified: true },
-    // { token: 'attentive', name: 'Attentive', verified: false }, // 404
+    // --- Second discover.js sweep, 22 Aug 2026 (439 tokens, 170 live). ---
+    { token: 'hevodata', name: 'Hevo Data', verified: true },  // 9 India backend
+    { token: 'matillion', name: 'Matillion', verified: true },
+    { token: 'snaplogic', name: 'SnapLogic', verified: true },
+    { token: 'nium', name: 'Nium', verified: true },
+    { token: 'sysdig', name: 'Sysdig', verified: true },
+    { token: 'tinybird', name: 'Tinybird', verified: true },
   ],
 
   ashby: [
@@ -121,7 +158,58 @@ module.exports = {
     { token: 'n8n', name: 'n8n', verified: true },
     { token: 'influxdata', name: 'InfluxData', verified: true },
     { token: 'materialize', name: 'Materialize', verified: true },
-    // { token: 'glean', name: 'Glean', verified: false }, // 404
+    // --- Second discover.js sweep, 22 Aug 2026 (439 tokens, 170 live). ---
+    { token: 'sarvam', name: 'Sarvam AI', verified: true },  // 11 India backend
+    { token: 'nanonets', name: 'Nanonets', verified: true },  // 4 India backend
+    { token: 'kong', name: 'Kong', verified: true },  // 3 India backend
+    { token: 'anyscale', name: 'Anyscale', verified: true },  // 3 India backend
+    { token: 'openai', name: 'OpenAI', verified: true },  // 1 India backend
+    { token: 'ditto', name: 'Ditto', verified: true },
+    { token: 'bounce', name: 'Bounce', verified: true },
+    { token: 'moderntreasury', name: 'Modern Treasury', verified: true },
+    { token: 'zip', name: 'Zip', verified: true },
+    { token: 'sentry', name: 'Sentry', verified: true },
+    { token: 'posthog', name: 'PostHog', verified: true },
+    { token: 'wundergraph', name: 'WunderGraph', verified: true },
+    { token: 'cohere', name: 'Cohere', verified: true },
+    { token: 'deepgram', name: 'Deepgram', verified: true },
+    { token: 'elevenlabs', name: 'ElevenLabs', verified: true },
+    { token: 'perplexity', name: 'Perplexity', verified: true },
+    { token: 'modal', name: 'Modal', verified: true },
+    { token: 'baseten', name: 'Baseten', verified: true },
+    { token: 'runpod', name: 'RunPod', verified: true },
+  ],
+
+  // ---------------------------------------------------------------------------
+  // SmartRecruiters - added 22 Aug 2026. Same deal as the other three: public,
+  // unauthenticated, structured JSON. This is how Swiggy became reachable.
+  //
+  // Careful when probing: unlike the others, SmartRecruiters answers 200 with
+  // an empty list for a company that does not exist, so "did it 404" is not a
+  // liveness test - totalFound > 0 is.
+  // ---------------------------------------------------------------------------
+  smartrecruiters: [
+    { token: 'swiggy', name: 'Swiggy', verified: true },        // 71 postings
+    { token: 'unacademy', name: 'Unacademy', verified: true },  // 3 postings
+    // --- Second discover.js sweep, 22 Aug 2026 (439 tokens, 170 live). ---
+    { token: 'servicenow', name: 'ServiceNow', verified: true },  // 2 India backend
+    { token: 'lendingkart', name: 'Lendingkart', verified: true },  // 1 India backend
+    { token: 'freshworks', name: 'Freshworks', verified: true },  // 1 India backend
+    { token: 'instahyre', name: 'Instahyre', verified: true },  // 1 India backend
+    { token: 'upstox', name: 'Upstox', verified: true },
+    { token: 'whatfix', name: 'Whatfix', verified: true },
+    { token: 'shipsy', name: 'Shipsy', verified: true },
+    { token: 'nobroker', name: 'NoBroker', verified: true },
+    { token: 'cars24', name: 'Cars24', verified: true },
+    { token: 'interviewbit', name: 'InterviewBit', verified: true },
+    { token: 'uber', name: 'Uber', verified: true },
+    { token: 'glean', name: 'Glean', verified: true },
+    { token: 'turtlemint', name: 'Turtlemint', verified: true },
+    { token: 'loophealth', name: 'Loop Health', verified: true },
+    { token: 'statiq', name: 'Statiq', verified: true },
+    { token: 'bluestone', name: 'BlueStone', verified: true },
+    { token: 'newtonschool', name: 'Newton School', verified: true },
+    { token: 'together', name: 'Together AI', verified: true },
   ],
 
   // ---------------------------------------------------------------------------

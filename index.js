@@ -67,6 +67,52 @@ async function fetchAshby({ token, name }) {
   }));
 }
 
+// SmartRecruiters splits its data: the postings list carries title and
+// location but no description, which needs one extra request per posting. So
+// filter on title first and fetch detail only for survivors - that keeps a
+// 200-posting board down to a handful of calls.
+//
+// Pre-filtering deliberately uses roleKeywords ONLY, not hardExcludes. The
+// full exclude logic in isRelevant has a Senior/Staff carve-out, and
+// duplicating it here would risk the two drifting apart.
+async function fetchSmartRecruiters({ token, name }) {
+  const list = await getJSON(
+    `https://api.smartrecruiters.com/v1/companies/${token}/postings?limit=100`);
+
+  const candidates = (list.content || [])
+    .map((p) => ({
+      source: 'smartrecruiters',
+      company: name,
+      id: String(p.id),
+      title: p.name,
+      location: srLocation(p.location),
+      url: p.ref || `https://jobs.smartrecruiters.com/${token}/${p.id}`,
+      content: '',
+      postedAt: p.releasedDate || null,
+    }))
+    .filter((j) => hasAny(j.title, config.roleKeywords));
+
+  for (const j of candidates) {
+    try {
+      const d = await getJSON(
+        `https://api.smartrecruiters.com/v1/companies/${token}/postings/${j.id}`);
+      const sections = (d.jobAd && d.jobAd.sections) || {};
+      j.content = stripTags(Object.keys(sections)
+        .map((k) => (sections[k] && sections[k].text) || '').join(' '));
+    } catch { /* keep the posting even if its description will not load */ }
+    await new Promise((r) => setTimeout(r, 120));
+  }
+  return candidates;
+}
+
+// SmartRecruiters returns India as the country code "in". Spell it out or the
+// location filter never matches a posting that names no city.
+function srLocation(loc) {
+  if (!loc) return '';
+  const country = loc.country === 'in' ? 'India' : (loc.country || '');
+  return [loc.city, loc.region, country].filter(Boolean).join(', ');
+}
+
 // ---------------------------------------------------------------------------
 // HELPERS
 // ---------------------------------------------------------------------------
@@ -277,6 +323,9 @@ async function run() {
       label: `${c.name} (lever:${c.token})`, run: () => fetchLever(c) })),
     ...config.ashby.map((c) => ({
       label: `${c.name} (ashby:${c.token})`, run: () => fetchAshby(c) })),
+    ...(config.smartrecruiters || []).map((c) => ({
+      label: `${c.name} (smartrecruiters:${c.token})`,
+      run: () => fetchSmartRecruiters(c) })),
   ];
 
   const all = [];

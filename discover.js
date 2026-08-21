@@ -70,7 +70,47 @@ const ATS = {
       content: strip(j.descriptionHtml || j.descriptionPlain || ''),
     })),
   },
+  // SmartRecruiters is the odd one out twice over:
+  //   - it answers 200 with an empty list for a company that does not exist,
+  //     so totalFound is the liveness test, not the HTTP status
+  //   - descriptions need one request per posting, so it needs fetchAll()
+  //     rather than the single-URL + map() the others use
+  smartrecruiters: {
+    probe: (t) => 'https://api.smartrecruiters.com/v1/companies/' + t + '/postings?limit=1',
+    count: (d) => d.totalFound || 0,
+    fetchAll: async (t) => {
+      const list = await getJSON(
+        'https://api.smartrecruiters.com/v1/companies/' + t + '/postings?limit=100');
+      const titleRe = new RegExp(config.roleKeywords.join('|'), 'i');
+      const keep = (list.content || [])
+        .map((p) => ({
+          id: p.id,
+          title: p.name,
+          location: srLocation(p.location),
+          content: '',
+        }))
+        .filter((r) => titleRe.test(r.title));
+      for (const r of keep) {
+        try {
+          const d = await getJSON(
+            'https://api.smartrecruiters.com/v1/companies/' + t + '/postings/' + r.id);
+          const sec = (d.jobAd && d.jobAd.sections) || {};
+          r.content = strip(Object.keys(sec)
+            .map((k) => (sec[k] && sec[k].text) || '').join(' '));
+        } catch (e) { /* keep it, just unscored on content */ }
+        await new Promise((res) => setTimeout(res, 120));
+      }
+      return keep;
+    },
+  },
 };
+
+// SmartRecruiters returns India as country code "in".
+function srLocation(loc) {
+  if (!loc) return '';
+  const country = loc.country === 'in' ? 'India' : (loc.country || '');
+  return [loc.city, loc.region, country].filter(Boolean).join(', ');
+}
 
 async function getJSON(url) {
   const res = await fetch(url, {
@@ -111,7 +151,8 @@ function loadCandidates() {
 }
 
 const EXISTING = new Set();
-[['greenhouse', config.greenhouse], ['lever', config.lever], ['ashby', config.ashby]]
+[['greenhouse', config.greenhouse], ['lever', config.lever], ['ashby', config.ashby],
+  ['smartrecruiters', config.smartrecruiters || []]]
   .forEach(([key, arr]) => arr.forEach((b) => EXISTING.add(key + ':' + b.token)));
 
 // Bengaluru or India-remote, matching the poller's own intent.
@@ -155,7 +196,10 @@ const INDIA = /bengaluru|bangalore|^india|[,\s]india|remote\s*[-,]?\s*india/i;
   // --- phase 2: score the new ones -----------------------------------------
   await pool(fresh, CONCURRENCY, async (b) => {
     try {
-      const postings = ATS[b.ats].map(await getJSON(ATS[b.ats].full(b.token)));
+      const spec = ATS[b.ats];
+      const postings = spec.fetchAll
+        ? await spec.fetchAll(b.token)
+        : spec.map(await getJSON(spec.full(b.token)));
       const relevant = postings.filter(isRelevant)
         .filter((j) => INDIA.test(j.location) || !j.location.trim());
       b.india = relevant.length;

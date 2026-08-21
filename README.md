@@ -8,8 +8,8 @@ no anti-bot, no maintenance treadmill.
 ## Why this and not a scraper
 
 Naukri and LinkedIn scrapers break constantly because you are fighting an
-adversary. Greenhouse, Lever and Ashby all expose **public, unauthenticated
-GET APIs** for their job boards. They are stable, documented, and return
+adversary. Greenhouse, Lever, Ashby and SmartRecruiters all expose **public,
+unauthenticated APIs** for their job boards. They are stable, documented, and return
 structured JSON.
 
 More importantly, they solve the problem that actually wasted your time:
@@ -36,7 +36,8 @@ four labelled phases (fetch, filter, score, diff). The report itself goes to
 stdout, so `node index.js > out.md` gives you a clean file while you still
 watch it run.
 
-Currently polls **79 boards** — 46 Greenhouse, 12 Lever, 21 Ashby.
+Currently polls **158 boards** across four platforms — 80 Greenhouse, 18 Lever,
+40 Ashby, 20 SmartRecruiters.
 
 Each run fetches every board fresh, filters, scores, then diffs against
 `seen.json`. A role reported once is never reported as new again. The
@@ -72,9 +73,10 @@ Verifying a token takes ten seconds:
 3. Read the token out of the URL
 
 ```
-job-boards.greenhouse.io/postman/jobs/123   -> greenhouse: "postman"
-jobs.lever.co/gohighlevel/abc-123           -> lever:      "gohighlevel"
-jobs.ashbyhq.com/confluent/abc-123          -> ashby:      "confluent"
+job-boards.greenhouse.io/postman/jobs/123   -> greenhouse:      "postman"
+jobs.lever.co/gohighlevel/abc-123           -> lever:           "gohighlevel"
+jobs.ashbyhq.com/confluent/abc-123          -> ashby:           "confluent"
+jobs.smartrecruiters.com/swiggy/123456      -> smartrecruiters: "swiggy"
 ```
 
 A board that fails is named in the report header along with its token, so a
@@ -85,10 +87,21 @@ to drop a whole company out of the report silently.
 There is no EU Greenhouse host. `boards-api.eu.greenhouse.io` does not
 resolve; every board lives on `boards-api.greenhouse.io`.
 
-**Do not bother adding:** Workday, iCIMS, or custom career sites. Workday in
-particular serves nothing to a script — that is exactly why manual research
-kept hitting walls. If a company is on Workday you check it by hand or not at
-all.
+### Why Workday companies are still missing
+
+Workday, iCIMS and custom career sites stay out — but for a narrower reason
+than "unscriptable", which is what this README used to claim.
+
+Workday does expose JSON: `POST /wday/cxs/{tenant}/{site}/jobs` returns
+listings for a single company. What it has no equivalent of is a *guessable*
+token. The tenant and site path have to be read out of each careers page's
+network tab; nine plausible tenant/site combinations probed on 22 Aug 2026 all
+missed. So Workday companies are a manual add each, never a sweep.
+
+That is what keeps Flipkart, Myntra, Zomato, Ola, Zerodha, Dream11 and most
+banks out of reach. Worth re-probing occasionally, though — Swiggy and
+Unacademy were both written off as unreachable until SmartRecruiters was
+tried, and they turned out to be sitting on a public API all along.
 
 ## Expanding coverage
 
@@ -110,14 +123,21 @@ and score for only the boards that came back alive — ending in paste-ready
 `config.js` lines. It writes nothing to disk and never touches `seen.json`.
 
 Add company-name guesses to `candidates.txt` and re-run it every month or so.
-The 22 Aug 2026 sweep probed 270 tokens, found 81 live boards and added 43.
+Two sweeps so far: 270 tokens → 81 live → 43 added, then 439 tokens → 170 live
+→ 77 added.
 
-Two things to watch:
+Three things to watch:
 
 - Where a company runs boards on **two** platforms, add only one. Polling both
-  reports the same job twice under different ids.
-- A token that 404s on one platform may be live on another — Plaid 404s on
-  Greenhouse but serves 107 jobs on Ashby.
+  reports the same job twice under different ids. Check the token against
+  *every* platform already in `config.js`, not just the one being added —
+  `smartrecruiters:netskope` looks new when you already poll
+  `greenhouse:netskope`.
+- A token that 404s on one platform may be live on another. Plaid 404s on
+  Greenhouse but serves 107 jobs on Ashby; Glean was written off entirely
+  until it turned up on SmartRecruiters.
+- SmartRecruiters answers **200 with an empty list** for a company that does
+  not exist, so HTTP status is not a liveness test there — `totalFound > 0` is.
 
 ## Scheduling
 
