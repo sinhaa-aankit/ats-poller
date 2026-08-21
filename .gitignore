@@ -1,0 +1,25 @@
+# ---------------------------------------------------------------------------
+# Personal job-search state. Do NOT commit - this is a record of which roles
+# you have seen and applied to, and publishing it exposes your search.
+# The tool recreates seen.json on first run; see the README to pre-seed it.
+# ---------------------------------------------------------------------------
+seen.json
+seed.js
+reports/
+poll.log
+
+# Node
+node_modules/
+npm-debug.log*
+package-lock.json
+
+# Editors / tooling
+.claude/
+.vscode/
+.idea/
+*.swp
+
+# OS
+Thumbs.db
+Desktop.ini
+.DS_Store

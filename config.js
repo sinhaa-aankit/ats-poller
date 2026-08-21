@@ -1,0 +1,197 @@
+// ---------------------------------------------------------------------------
+// TARGET COMPANIES
+// ---------------------------------------------------------------------------
+// Tokens marked VERIFIED were confirmed working during research on 12 Aug 2026.
+// Tokens marked GUESS need checking once - see README for the 10-second method.
+//
+// To find a board token: open the company's careers page, click any job, and
+// look at the URL.
+//   job-boards.greenhouse.io/postman/jobs/123   -> greenhouse token "postman"
+//   jobs.lever.co/gohighlevel/abc-123           -> lever token "gohighlevel"
+//   jobs.ashbyhq.com/confluent/abc-123          -> ashby token "confluent"
+// ---------------------------------------------------------------------------
+
+module.exports = {
+  greenhouse: [
+    { token: 'postman', name: 'Postman', verified: true },
+    { token: 'razorpaysoftwareprivatelimited', name: 'Razorpay', verified: true },
+    { token: 'twilio', name: 'Twilio', verified: true },
+    // Groww is NOT on an EU instance - boards-api.eu.greenhouse.io does not
+    // exist (NXDOMAIN). Both tokens return 200 on the standard host.
+    // Verified 20 Aug 2026.
+    { token: 'groww', name: 'Groww', verified: true },
+    { token: 'growwreferrals', name: 'Groww (referral board)', verified: true },
+    // Promoted GUESS -> verified, all confirmed 200 on 20 Aug 2026.
+    { token: 'figma', name: 'Figma', verified: true },
+    { token: 'coinbase', name: 'Coinbase', verified: true },
+    { token: 'databricks', name: 'Databricks', verified: true },
+    { token: 'brex', name: 'Brex', verified: true },
+    { token: 'cloudflare', name: 'Cloudflare', verified: true },
+    { token: 'gitlab', name: 'GitLab', verified: true },
+    // --- Indian market / Bengaluru headcount. All probed live 20 Aug 2026. ---
+    // The original list was US-heavy, which capped how many Bengaluru backend
+    // roles could exist to be found at all.
+    { token: 'phonepe', name: 'PhonePe', verified: true },      // 5 India backend
+    { token: 'slice', name: 'slice', verified: true },
+    { token: 'zscaler', name: 'Zscaler', verified: true },      // 11 India backend
+    { token: 'rubrik', name: 'Rubrik', verified: true },        // 8 India backend
+    { token: 'netskope', name: 'Netskope', verified: true },
+    { token: 'stripe', name: 'Stripe', verified: true },
+    { token: 'druva', name: 'Druva', verified: true },
+    { token: 'yugabyte', name: 'YugabyteDB', verified: true },
+    { token: 'minio', name: 'MinIO', verified: true },
+    { token: 'wise', name: 'Wise', verified: true },
+    { token: 'airbnb', name: 'Airbnb', verified: true },
+    // Dead tokens - 404 on 20 Aug 2026. Wrong token, not a dead company.
+    // Re-enable if you find the real one via the README URL trick.
+    // { token: 'plaid', name: 'Plaid', verified: false },   // 404
+    // { token: 'hasura', name: 'Hasura', verified: false }, // 404
+  ],
+
+  // The EU Greenhouse host does not exist. Kept as an empty array because
+  // index.js maps over it unconditionally.
+  euGreenhouse: [],
+
+  lever: [
+    { token: 'gohighlevel', name: 'HighLevel', verified: true },
+    { token: 'palantir', name: 'Palantir', verified: true },
+    // Indian product / fintech, probed live 20 Aug 2026.
+    { token: 'meesho', name: 'Meesho', verified: true },        // 5 India backend
+    { token: 'zeta', name: 'Zeta', verified: true },
+    { token: 'cred', name: 'CRED', verified: true },
+    { token: 'epifi', name: 'Fi Money', verified: true },
+    { token: 'porter', name: 'Porter', verified: true },
+    { token: 'mindtickle', name: 'Mindtickle', verified: true },
+    // { token: 'attentive', name: 'Attentive', verified: false }, // 404
+  ],
+
+  ashby: [
+    { token: 'confluent', name: 'Confluent', verified: true },
+    { token: 'ramp', name: 'Ramp', verified: true },
+    // Indian product / fintech, probed live 20 Aug 2026.
+    { token: 'tekion', name: 'Tekion', verified: true },        // 19 India backend
+    { token: 'atlan', name: 'Atlan', verified: true },
+    { token: 'navi', name: 'Navi', verified: true },
+    { token: 'airwallex', name: 'Airwallex', verified: true },
+    // { token: 'glean', name: 'Glean', verified: false }, // 404
+  ],
+
+  // ---------------------------------------------------------------------------
+  // FILTERS - tuned to Ankit's profile
+  // ---------------------------------------------------------------------------
+
+  // Deliberately broad. An earlier version listed specific titles like
+  // "software engineer" and "platform engineer" - it rejected BOTH
+  // "Senior Engineer, Messaging Platform" and "Software Development Engineer III",
+  // which were the two best real matches found. Titles vary too much to
+  // whitelist. Cast wide here, let hardExcludes and scoring do the filtering.
+  roleKeywords: ['engineer', 'developer', 'sde', 'architect', 'programmer', 'backend'],
+
+  // Bengaluru or remote only.
+  locationKeywords: [
+    'bangalore', 'bengaluru', 'remote', 'anywhere', 'distributed',
+    'india',           // bare "India" with no city named - usually remote/flexible
+  ],
+
+  // Checked BEFORE locationKeywords. A job naming one of these is rejected even
+  // if the string also contains "India" (e.g. "Hyderabad, India"). Remove any
+  // city you would actually relocate to.
+  excludeCities: [
+    'hyderabad', 'pune', 'chennai', 'mumbai', 'gurgaon', 'gurugram',
+    'noida', 'delhi', 'kolkata', 'ahmedabad', 'jaipur', 'kochi',
+    'coimbatore', 'trivandrum', 'thiruvananthapuram', 'indore', 'nagpur',
+  ],
+
+  // A posting with a blank/missing location field is kept rather than dropped -
+  // some boards omit it entirely and those are worth a look.
+  keepIfLocationMissing: true,
+
+  // Instantly reject - these cost you nothing to filter out and save real time.
+  hardExcludes: [
+    'intern', 'internship', 'graduate', 'campus', 'fresher',
+    // 'staff' alone, not 'staff engineer' - matching is whole-word now, and
+    // 'staff engineer' never caught "Staff Software Engineer". Safe because
+    // hardExcludes is tested against the title only.
+    'staff', 'principal', 'director',
+    'engineering manager', 'vp ', 'head of',
+    'data engineer', 'machine learning', 'ml engineer', 'data scientist',
+    'android', 'ios ', 'mobile engineer', 'frontend', 'front end', 'front-end',
+    'qa engineer', 'sdet', 'test engineer', 'devops', 'site reliability',
+    // Added 20 Aug 2026 - all of these cleared the threshold on day one.
+    'engineer in test',                    // "SDE in Test III" scored 36
+    'support engineer', 'presales', 'pre-sales',
+    'solutions engineer', 'solutions engineering',
+    'sap',
+    // Added 21 Aug 2026 - PhonePe's firmware role cleared at 20 pts.
+    'firmware',
+  ],
+
+  // ---------------------------------------------------------------------------
+  // SCORING - weights reflect what actually predicts a good match for you
+  // ---------------------------------------------------------------------------
+  scoring: {
+    strong: {
+      weight: 12,
+      // Bare 'node ' and 'express' were removed on 20 Aug 2026: 'express' was
+      // matching "express written consent" in JD legal footers, and 'node ' was
+      // matching blockchain "node" - both awarding a phantom +12. Word-boundary
+      // matching cannot fix these because both are real whole words there.
+      // A genuine Node role names "Node.js" or "Express.js".
+      terms: ['node.js', 'nodejs', 'javascript',
+              'express.js', 'expressjs'],
+    },
+    // Real signal, but NOT on the resume. TypeScript and NestJS are neither
+    // claimed nor demonstrated, so they must not carry demonstrated-stack
+    // weight - that is what put HighLevel at #1 partly on tech Ankit would be
+    // learning rather than showing. Same JS family and learnable in weeks,
+    // so 6 rather than 0.
+    adjacent: {
+      weight: 6,
+      terms: ['typescript', 'nestjs', 'nest.js'],
+    },
+    domain: {
+      weight: 10,
+      // Added 21 Aug 2026 from the resume: RBI compliance, AML validation and
+      // PAN verification are distinctive Indian-banking signal that scored
+      // zero before. 'pan verification' is a phrase on purpose - bare 'pan'
+      // would match "Pan-India", which is in half the JDs in this market.
+      terms: ['payment', 'fintech', 'banking', 'transaction', 'upi',
+              'financial', 'ledger', 'settlement',
+              'rbi', 'aml', 'kyc', 'pan verification'],
+    },
+    core: {
+      weight: 6,
+      terms: ['mongodb', 'nosql', 'redis', 'rest api', 'restful',
+              'microservice', 'distributed system', 'docker', 'kubernetes',
+              'ci/cd', 'event-driven', 'message queue', 'kafka', 'pub/sub',
+              'caching', 'scalab', 'high availability', 'postgres', 'mysql',
+              // Added 21 Aug 2026 - all four are on the resume and all four
+              // scored zero before. DocumentDB and Oracle are the databases
+              // behind the 2.6M-record migration.
+              'documentdb', 'oracle', 'batch processing', 'parallel processing'],
+    },
+    bonus: {
+      weight: 4,
+      terms: ['retry', 'idempoten', 'deduplicat', 'rate limit', 'observability',
+              'root cause', 'incident', 'migration', 'performance optimi'],
+    },
+    // Presence of these means the role is built on a stack you do not have.
+    penalty: {
+      weight: -14,
+      // 'c++' removed 21 Aug 2026: C++ is on the resume's Languages line, so
+      // docking 14 points for a JD mentioning it was simply wrong. The Core
+      // Java entry stays - it is phrase-guarded to "strong experience in core
+      // java" and only fires on Java-primary roles, which are the wrong stack
+      // even though Core Java is a listed (and formerly taught) skill.
+      terms: ['proficiency in go', 'golang required', 'strong experience in core java',
+              'spring boot', 'scala', 'haskell', 'purescript', 'rust',
+              'spark', 'hadoop', '.net', 'c#'],
+    },
+  },
+
+  // Jobs scoring below this are logged but not surfaced in the report.
+  minScore: 20,
+
+  // Experience ceilings - a JD asking for more than this is a poor use of time.
+  maxYearsRequired: 7,
+};

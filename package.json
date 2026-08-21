@@ -1,0 +1,25 @@
+{
+  "name": "ats-poller",
+  "version": "1.0.0",
+  "description": "Polls company ATS boards (Greenhouse, Lever, Ashby) directly for new backend roles in India. No scraping, no dependencies.",
+  "main": "index.js",
+  "private": true,
+  "scripts": {
+    "start": "node index.js",
+    "all": "node index.js --all",
+    "test": "node test.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "ats",
+    "greenhouse",
+    "lever",
+    "ashby",
+    "job-search",
+    "zero-dependency"
+  ],
+  "author": "Ankit Kumar Sinha",
+  "license": "MIT"
+}
