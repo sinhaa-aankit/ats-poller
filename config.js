@@ -42,9 +42,36 @@ module.exports = {
     { token: 'minio', name: 'MinIO', verified: true },
     { token: 'wise', name: 'Wise', verified: true },
     { token: 'airbnb', name: 'Airbnb', verified: true },
+    // --- Found by discover.js on 22 Aug 2026. 270 tokens probed, 81 live. ---
+    // Where a company runs boards on two platforms, only one is listed here -
+    // polling both would report the same job twice under different ids.
+    { token: 'purestorage', name: 'Pure Storage', verified: true },  // 13 India backend
+    { token: 'fivetran', name: 'Fivetran', verified: true },  // 6 India backend
+    { token: 'clickhouse', name: 'ClickHouse', verified: true },  // 6 India backend
+    { token: 'newrelic', name: 'New Relic', verified: true },  // 4 India backend
+    { token: 'mongodb', name: 'MongoDB', verified: true },  // 4 India backend
+    { token: 'adyen', name: 'Adyen', verified: true },  // 2 India backend
+    { token: 'starburst', name: 'Starburst', verified: true },  // 2 India backend
+    { token: 'elastic', name: 'Elastic', verified: true },  // 1 India backend
+    { token: 'datadog', name: 'Datadog', verified: true },  // 1 India backend
+    { token: 'zenoti', name: 'Zenoti', verified: true },
+    { token: 'braze', name: 'Braze', verified: true },
+    { token: 'mixpanel', name: 'Mixpanel', verified: true },
+    { token: 'sendbird', name: 'Sendbird', verified: true },
+    { token: 'gocardless', name: 'GoCardless', verified: true },
+    { token: 'payoneer', name: 'Payoneer', verified: true },
+    { token: 'monzo', name: 'Monzo', verified: true },
+    { token: 'gusto', name: 'Gusto', verified: true },
+    { token: 'remotecom', name: 'Remote', verified: true },
+    { token: 'jetbrains', name: 'JetBrains', verified: true },
+    { token: 'vercel', name: 'Vercel', verified: true },
+    { token: 'netlify', name: 'Netlify', verified: true },
+    { token: 'planetscale', name: 'PlanetScale', verified: true },
+    { token: 'cockroachlabs', name: 'Cockroach Labs', verified: true },
+    { token: 'dremio', name: 'Dremio', verified: true },
     // Dead tokens - 404 on 20 Aug 2026. Wrong token, not a dead company.
     // Re-enable if you find the real one via the README URL trick.
-    // { token: 'plaid', name: 'Plaid', verified: false },   // 404
+    // { token: 'plaid', name: 'Plaid', verified: false },   // 404 here - live on Ashby, see below
     // { token: 'hasura', name: 'Hasura', verified: false }, // 404
   ],
 
@@ -62,6 +89,11 @@ module.exports = {
     { token: 'epifi', name: 'Fi Money', verified: true },
     { token: 'porter', name: 'Porter', verified: true },
     { token: 'mindtickle', name: 'Mindtickle', verified: true },
+    // --- Found by discover.js on 22 Aug 2026. ---
+    { token: 'fampay', name: 'FamPay', verified: true },  // 3 India backend, 3 clearing
+    { token: 'paytm', name: 'Paytm', verified: true },
+    { token: 'pocketfm', name: 'Pocket FM', verified: true },
+    { token: 'neon', name: 'Neon', verified: true },
     // { token: 'attentive', name: 'Attentive', verified: false }, // 404
   ],
 
@@ -73,6 +105,22 @@ module.exports = {
     { token: 'atlan', name: 'Atlan', verified: true },
     { token: 'navi', name: 'Navi', verified: true },
     { token: 'airwallex', name: 'Airwallex', verified: true },
+    // --- Found by discover.js on 22 Aug 2026. ---
+    { token: 'snowflake', name: 'Snowflake', verified: true },  // 3 India backend
+    { token: 'livekit', name: 'LiveKit', verified: true },  // 1 India backend
+    { token: 'plaid', name: 'Plaid', verified: true },  // 404s on Greenhouse, live here
+    { token: 'redis', name: 'Redis', verified: true },
+    { token: 'amplitude', name: 'Amplitude', verified: true },
+    { token: 'airbyte', name: 'Airbyte', verified: true },
+    { token: 'velocity', name: 'Velocity', verified: true },
+    { token: 'replit', name: 'Replit', verified: true },
+    { token: 'render', name: 'Render', verified: true },
+    { token: 'railway', name: 'Railway', verified: true },
+    { token: 'supabase', name: 'Supabase', verified: true },
+    { token: 'temporal', name: 'Temporal', verified: true },
+    { token: 'n8n', name: 'n8n', verified: true },
+    { token: 'influxdata', name: 'InfluxData', verified: true },
+    { token: 'materialize', name: 'Materialize', verified: true },
     // { token: 'glean', name: 'Glean', verified: false }, // 404
   ],
 

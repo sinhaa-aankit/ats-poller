@@ -7,7 +7,8 @@
   "scripts": {
     "start": "node index.js",
     "all": "node index.js --all",
-    "test": "node test.js"
+    "test": "node test.js",
+    "discover": "node discover.js"
   },
   "engines": {
     "node": ">=18"

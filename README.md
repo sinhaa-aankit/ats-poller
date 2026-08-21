@@ -25,12 +25,13 @@ Node 18+ only. **No dependencies, no `npm install`.** It uses built-in `fetch`.
 ```bash
 node index.js          # report only roles never seen before
 node index.js --all    # also print the full ranked list of everything open
+node discover.js       # hunt for company boards not yet in config.js
 node test.js           # 64 assertions, no network access
 ```
 
-Or via npm scripts: `npm start`, `npm run all`, `npm test`.
+Or via npm scripts: `npm start`, `npm run all`, `npm run discover`, `npm test`.
 
-Currently polls **36 boards** — 22 Greenhouse, 8 Lever, 6 Ashby.
+Currently polls **79 boards** — 46 Greenhouse, 12 Lever, 21 Ashby.
 
 Each run fetches every board fresh, filters, scores, then diffs against
 `seen.json`. A role reported once is never reported as new again. The
@@ -83,6 +84,35 @@ resolve; every board lives on `boards-api.greenhouse.io`.
 particular serves nothing to a script — that is exactly why manual research
 kept hitting walls. If a company is on Workday you check it by hand or not at
 all.
+
+## Expanding coverage
+
+The company list is a hard ceiling. The poller only ever finds jobs at
+companies already in `config.js`, because no ATS platform offers a "list all
+boards" endpoint — every API is `GET /<token>`, so there is nothing to crawl
+and you must already know the token.
+
+`discover.js` closes that gap the only way available: guess tokens against all
+three platforms and keep whatever returns 200.
+
+```bash
+node discover.js                 # probe every token in candidates.txt
+node discover.js acme foo bar    # probe specific tokens
+```
+
+Two phases — a cheap liveness probe across every candidate, then a full fetch
+and score for only the boards that came back alive — ending in paste-ready
+`config.js` lines. It writes nothing to disk and never touches `seen.json`.
+
+Add company-name guesses to `candidates.txt` and re-run it every month or so.
+The 22 Aug 2026 sweep probed 270 tokens, found 81 live boards and added 43.
+
+Two things to watch:
+
+- Where a company runs boards on **two** platforms, add only one. Polling both
+  reports the same job twice under different ids.
+- A token that 404s on one platform may be live on another — Plaid 404s on
+  Greenhouse but serves 107 jobs on Ashby.
 
 ## Scheduling
 
