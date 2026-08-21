@@ -31,6 +31,11 @@ node test.js           # 64 assertions, no network access
 
 Or via npm scripts: `npm start`, `npm run all`, `npm run discover`, `npm test`.
 
+Progress is printed to stderr as it works - board-by-board counter, then
+four labelled phases (fetch, filter, score, diff). The report itself goes to
+stdout, so `node index.js > out.md` gives you a clean file while you still
+watch it run.
+
 Currently polls **79 boards** — 46 Greenhouse, 12 Lever, 21 Ashby.
 
 Each run fetches every board fresh, filters, scores, then diffs against

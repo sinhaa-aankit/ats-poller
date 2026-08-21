@@ -258,7 +258,15 @@ function saveSeen(set) {
 // MAIN
 // ---------------------------------------------------------------------------
 
+// Progress goes to stderr, not stdout, so `node index.js > out.md` still
+// writes a clean report while you watch it work. run-daily.cmd redirects
+// 2>&1, so poll.log keeps both streams.
+function progress(msg) {
+  process.stderr.write(msg + '\n');
+}
+
 async function run() {
+  const started = Date.now();
   const tasks = [
     ...config.greenhouse.map((c) => ({
       label: `${c.name} (greenhouse:${c.token})`, run: () => fetchGreenhouse(c) })),
@@ -274,34 +282,61 @@ async function run() {
   const all = [];
   const failures = [];
 
-  // Sequential with a small delay - we are polling ~35 endpoints, not racing.
+  progress(`[1/4] Fetching ${tasks.length} boards...`);
+
+  // Sequential with a small delay - we are polling ~79 endpoints, not racing.
   // One retry, and the board is named in the failure: a single transient
   // "fetch failed" used to drop a whole company out of the report silently,
   // and the message gave no way to tell which one.
+  let n = 0;
   for (const task of tasks) {
+    n += 1;
+    const tag = `  ${String(n).padStart(2)}/${tasks.length}`;
     let lastErr = null;
+    let got = 0;
     for (let attempt = 0; attempt < 2; attempt++) {
       try {
-        all.push(...await task.run());
+        const jobs = await task.run();
+        all.push(...jobs);
+        got = jobs.length;
         lastErr = null;
         break;
       } catch (err) {
         lastErr = err;
-        if (attempt === 0) await new Promise((r) => setTimeout(r, 1500));
+        if (attempt === 0) {
+          progress(`${tag}  ${task.label} - ${err.message}, retrying`);
+          await new Promise((r) => setTimeout(r, 1500));
+        }
       }
     }
-    if (lastErr) failures.push(`${task.label}: ${lastErr.message}`);
+    if (lastErr) {
+      progress(`${tag}  ${task.label} - FAILED (${lastErr.message})`);
+      failures.push(`${task.label}: ${lastErr.message}`);
+    } else {
+      progress(`${tag}  ${task.label} - ${got} jobs`);
+    }
     await new Promise((r) => setTimeout(r, 250));
   }
 
+  const secs = Math.round((Date.now() - started) / 1000);
+  progress(`      ${all.length} postings fetched in ${secs}s`
+    + (failures.length ? `, ${failures.length} board(s) failed` : ''));
+
+  progress('[2/4] Filtering to Bengaluru / remote-India backend roles...');
   const relevant = all.filter(isRelevant);
+  progress(`      ${relevant.length} relevant`);
+
+  progress(`[3/4] Scoring against your profile (minScore ${config.minScore})...`);
   const scored = relevant
     .map((j) => ({ ...j, ...score(j) }))
     .filter((j) => j.total >= config.minScore)
     .sort((a, b) => b.total - a.total);
+  progress(`      ${scored.length} cleared the threshold`);
 
   const seen = loadSeen();
+  progress(`[4/4] Diffing against seen.json (${seen.size} already known)...`);
   const fresh = scored.filter((j) => !seen.has(`${j.source}:${j.id}`));
+  progress(`      ${fresh.length} NEW\n`);
   scored.forEach((j) => seen.add(`${j.source}:${j.id}`));
   saveSeen(seen);
 
