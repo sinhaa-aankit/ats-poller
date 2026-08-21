@@ -161,7 +161,10 @@ module.exports = {
     // 'staff engineer' never caught "Staff Software Engineer". Safe because
     // hardExcludes is tested against the title only.
     'staff', 'principal', 'director',
-    'engineering manager', 'vp ', 'head of',
+    // Bare 'manager', not just 'engineering manager' - that phrase missed
+    // "Tech Lead Manager" (57 pts) and "Manager, Software Engineering" (31 pts).
+    // Targeting IC roles, so any people-management title is out.
+    'manager', 'vp ', 'head of',
     'data engineer', 'machine learning', 'ml engineer', 'data scientist',
     'android', 'ios ', 'mobile engineer', 'frontend', 'front end', 'front-end',
     'qa engineer', 'sdet', 'test engineer', 'devops', 'site reliability',
