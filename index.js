@@ -86,7 +86,10 @@ async function fetchSmartRecruiters({ token, name }) {
       id: String(p.id),
       title: p.name,
       location: srLocation(p.location),
-      url: p.ref || `https://jobs.smartrecruiters.com/${token}/${p.id}`,
+      // NOT p.ref - that is the API self-link and renders raw JSON in a
+      // browser. The human-facing URL only exists on the detail response, so
+      // this constructed one is a placeholder the loop below upgrades.
+      url: `https://jobs.smartrecruiters.com/${token}/${p.id}`,
       content: '',
       postedAt: p.releasedDate || null,
     }))
@@ -99,6 +102,7 @@ async function fetchSmartRecruiters({ token, name }) {
       const sections = (d.jobAd && d.jobAd.sections) || {};
       j.content = stripTags(Object.keys(sections)
         .map((k) => (sections[k] && sections[k].text) || '').join(' '));
+      if (d.postingUrl) j.url = d.postingUrl;
     } catch { /* keep the posting even if its description will not load */ }
     await new Promise((r) => setTimeout(r, 120));
   }
