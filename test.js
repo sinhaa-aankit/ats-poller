@@ -89,5 +89,79 @@ for (const [name, j] of bad) {
   }
 }
 
+console.log('\n=== 8. WORD-BOUNDARY MATCHING ===');
+// Regression cover for the substring bug: plain includes() meant 'scala' hit
+// "scalable" and fired a -14 penalty on roles that were a good match, 'rust'
+// hit "trusted", and 'express' hit "expressed". All three shipped green
+// against the original suite, because none of the four calibration JDs happen
+// to contain those words.
+const bucket = (content, name) =>
+  score({ title: 'Backend Engineer', content }).hits[name] || [];
+
+check('"scalable" does not fire the scala penalty',
+  bucket('We build scalable systems', 'penalty'), []);
+check('"scalable" still scores as core',
+  bucket('We build scalable systems', 'core'), ['scalab']);
+check('"trusted" does not fire the rust penalty',
+  bucket('Trusted by millions of users', 'penalty'), []);
+check('"expressed" is not Express.js',
+  bucket('Candidates who expressed interest', 'strong'), []);
+check('"express written consent" is not Express.js',
+  bucket('No use without express written consent', 'strong'), []);
+check('real Scala is still penalised',
+  bucket('Strong experience in Scala and Akka', 'penalty'), ['scala']);
+check('real Rust is still penalised',
+  bucket('Built in Rust for performance', 'penalty'), ['rust']);
+check('C++ is NOT penalised - it is on the resume',
+  bucket('Some C++ in the codebase', 'penalty'), []);
+
+console.log('\n=== 9. INFLECTION ALLOWANCE ===');
+// A hard \b...\b boundary would have silently dropped every plural in the
+// term lists - caught only because a core hit disappeared from a test run.
+check('plural: payments / transactions',
+  bucket('payments and transactions at scale', 'domain'), ['payment', 'transaction']);
+check('plural: microservices',
+  bucket('microservices architecture', 'core'), ['microservice']);
+check('plural: message queues',
+  bucket('message queues everywhere', 'core'), ['message queue']);
+check('plural: distributed systems',
+  bucket('distributed systems work', 'core'), ['distributed system']);
+check('stem: scalability',
+  bucket('scalability work', 'core'), ['scalab']);
+check('stem: idempotent / deduplication',
+  bucket('idempotent deduplication', 'bonus'), ['idempoten', 'deduplicat']);
+check('gerund: rate limiting',
+  bucket('rate limiting layer', 'bonus'), ['rate limit']);
+
+console.log('\n=== 10. REMOTE LOCATION SCOPING ===');
+// "Remote - US" used to pass on the bare word "remote", which was the single
+// biggest source of noise - 24 of 38 roles in the first real report.
+const loc = (l) => isRelevant({ title: 'Senior Backend Engineer', location: l,
+  content: 'Node.js MongoDB Redis' });
+[['Remote - US', false], ['Remote - USA', false], ['Remote - Ireland', false],
+ ['Remote - Colombia', false], ['Remote, United Arab Emirates', false],
+ ['Remote - San Francisco', false], ['Fully Remote', true],
+ ['Remote, Bangalore', true], ['Bengaluru; Remote - US', true],
+].forEach(([l, want]) => check(`location "${l}"`, loc(l), want));
+
+console.log('\n=== 11. TITLE EXCLUSIONS ===');
+const title = (t) => isRelevant({ title: t, location: 'Bengaluru',
+  content: 'Node.js MongoDB payment' });
+[['Tech Lead Manager - Product Engineering', false],
+ ['Manager, Software Engineering', false],
+ ['Software Development Engineer in Test III', false],
+ ['Technical Support Engineer 2', false],
+ ['Sr SAP Developer', false],
+ ['Firmware Engineer(5-7 years)', false],
+ ['Senior Presales Engineer', false],
+ ['Staff Software Engineer (Data Platform)', false],
+ ['Senior Staff Engineer', false],
+ // "Senior/Staff X" is one posting spanning two levels and applies at the
+ // Senior end, so the 'staff' exclude must not swallow it.
+ ['Senior/Staff Applied Research Software Engineer', true],
+ ['Senior / Staff Software Engineer', true],
+ ['SDE 3 - Platform Engineering', true],
+].forEach(([t, want]) => check(`title "${t}"`, title(t), want));
+
 console.log(`\n${'='.repeat(50)}\n${pass} passed, ${fail} failed`);
 if (fail) { console.log('\nFAILURES:'); failures.forEach(f => console.log('  - ' + f)); process.exit(1); }

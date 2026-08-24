@@ -26,7 +26,7 @@ Node 18+ only. **No dependencies, no `npm install`.** It uses built-in `fetch`.
 node index.js          # report only roles never seen before
 node index.js --all    # also print the full ranked list of everything open
 node discover.js       # hunt for company boards not yet in config.js
-node test.js           # 64 assertions, no network access
+node test.js           # 100 assertions, no network access
 ```
 
 Or via npm scripts: `npm start`, `npm run all`, `npm run discover`, `npm test`.

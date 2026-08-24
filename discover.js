@@ -4,13 +4,13 @@
 // ---------------------------------------------------------------------------
 // BOARD DISCOVERY
 //
-// None of the three ATS platforms expose a "list all boards" endpoint - every
+// None of the four ATS platforms expose a "list all boards" endpoint - every
 // API is GET /<token>, so you have to already know the token. That makes the
 // company list in config.js a hard ceiling on coverage: the poller can only
 // find jobs at companies you have already added.
 //
-// This closes that gap the only way available - guess tokens against all three
-// platforms and keep whatever returns 200.
+// This closes that gap the only way available - guess tokens against all four
+// platforms and keep whatever comes back non-empty.
 //
 //   node discover.js                 probe every token in candidates.txt
 //   node discover.js acme foo bar    probe just these tokens
