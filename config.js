@@ -332,7 +332,7 @@ module.exports = {
   // Not every run: discovery is ~1,800 requests and finds nothing unless a
   // company newly adopts one of the four ATS platforms or candidates.txt
   // grows. Override per-run with --discover-now or --no-discover.
-  discoverEveryDays: 30,
+  discoverEveryDays: 5,
 
   // Jobs scoring below this are logged but not surfaced in the report.
   minScore: 20,

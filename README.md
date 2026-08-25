@@ -129,7 +129,7 @@ and score for only the boards that came back alive — ending in paste-ready
 
 `index.js` tracks when discovery last ran (`.discover-state.json`, gitignored)
 and triggers it with `--adopt` once it is older than `discoverEveryDays` in
-`config.js` — 30 days by default. Boards adopted mid-run are polled in that
+`config.js` — 5 days by default. Boards adopted mid-run are polled in that
 same run, so nothing waits for tomorrow.
 
 It is deliberately **not** run on every poll:
