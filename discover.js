@@ -150,6 +150,26 @@ function loadCandidates() {
     .filter(Boolean);
 }
 
+const STATE_FILE = path.join(__dirname, '.discover-state.json');
+
+function loadState() {
+  try { return JSON.parse(fs.readFileSync(STATE_FILE, 'utf8')); } catch (e) { return {}; }
+}
+
+// Merge, never clobber - index.js keeps lastRun/adopted in this same file.
+function saveState(patch) {
+  fs.writeFileSync(STATE_FILE, JSON.stringify(Object.assign(loadState(), patch)));
+}
+
+// Stable 0..n-1 slot for a token so dead-token retries spread evenly across
+// days. Without this every token marked dead on the same sweep would come due
+// again on the same day, which is the thundering herd we are avoiding.
+function slotFor(key, n) {
+  let h = 0;
+  for (let i = 0; i < key.length; i += 1) h = ((h * 31) + key.charCodeAt(i)) >>> 0;
+  return h % n;
+}
+
 const EXISTING = new Set();       // "platform:token"
 const EXISTING_TOKENS = new Set(); // token on ANY platform
 [['greenhouse', config.greenhouse], ['lever', config.lever], ['ashby', config.ashby],
@@ -196,30 +216,74 @@ const INDIA = /bengaluru|bangalore|^india|[,\s]india|remote\s*[-,]?\s*india/i;
 async function discover(opts = {}) {
   const adopt = opts.adopt || process.argv.includes('--adopt');
   const tokens = [...new Set(opts.tokens || loadCandidates())];
+  // Skip anything already in config.js - index.js polls those every run, so
+  // re-probing them here is pure duplication.
+  //
+  // Then rate-limit the misses. ~92% of probes are 404s against the same dead
+  // tokens every time, which is both wasted and the thing that makes this look
+  // like enumeration rather than reading. Each dead token is retried once every
+  // deadRetryDays, staggered by a hash of its name so the retries spread evenly
+  // across days instead of all landing together.
+  const state = loadState();
+  const retryDays = Math.max(1, opts.deadRetryDays || config.deadRetryDays || 7);
+  const daySlot = Math.floor(Date.now() / 86400000) % retryDays;
+  const skipped = { inConfig: 0, restingDead: 0 };
+
   const requests = [];
   tokens.forEach((token) => {
-    Object.keys(ATS).forEach((ats) => requests.push({ token, ats }));
+    Object.keys(ATS).forEach((ats) => {
+      const key = ats + ':' + token;
+      if (EXISTING.has(key)) { skipped.inConfig += 1; return; }
+      if (state.dead && state.dead[key] !== undefined && slotFor(key, retryDays) !== daySlot) {
+        skipped.restingDead += 1;
+        return;
+      }
+      requests.push({ token, ats });
+    });
   });
 
-  console.log('Probing ' + tokens.length + ' tokens across ' + Object.keys(ATS).length
-    + ' platforms (' + requests.length + ' requests, ' + CONCURRENCY + ' at a time)...\n');
+  console.log('Probing ' + requests.length + ' of ' + (tokens.length * Object.keys(ATS).length)
+    + ' token/platform pairs, ' + CONCURRENCY + ' at a time.');
+  console.log('  skipped ' + skipped.inConfig + ' already in config, '
+    + skipped.restingDead + ' known-dead not due for retry (every ' + retryDays + 'd)\n');
 
   // --- phase 1: liveness ---------------------------------------------------
   let done = 0;
+  let throttled = false;
   const live = [];
+  const dead = Object.assign({}, state.dead || {});
+  const today = new Date().toISOString().slice(0, 10);
+
   await pool(requests, CONCURRENCY, async ({ token, ats }) => {
+    const key = ats + ':' + token;
+    if (throttled) return;
     try {
       const n = ATS[ats].count(await getJSON(ATS[ats].probe(token)));
       if (n > 0) {
+        delete dead[key];
         live.push({ token, ats, total: n });
-        const dup = EXISTING.has(ats + ':' + token);
+        const dup = EXISTING.has(key);
         console.log('  LIVE  ' + ats.padEnd(10) + ' ' + token.padEnd(22)
           + String(n).padStart(4) + ' jobs' + (dup ? '   (already in config)' : ''));
+      } else {
+        dead[key] = today;   // 200 with an empty list, e.g. SmartRecruiters
       }
-    } catch (e) { /* 404 is the expected case for a wrong guess */ }
+    } catch (e) {
+      // Back off immediately if we are being rate-limited or refused. Better to
+      // stop early than to keep hammering and earn a longer ban.
+      if (/\b(429|403)\b/.test(e.message)) {
+        if (!throttled) console.log('  ! ' + e.message + ' from ' + ats
+          + ' - backing off, discovery will resume next run');
+        throttled = true;
+        return;
+      }
+      dead[key] = today;
+    }
     done += 1;
     if (done % 150 === 0) console.log('  ...' + done + '/' + requests.length + ' probed');
   });
+
+  saveState({ dead });
 
   console.log('\nPhase 1: ' + live.length + ' live boards from ' + tokens.length + ' tokens.');
   // Three filters, every one of which exists to stop the same job being

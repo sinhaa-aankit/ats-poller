@@ -358,8 +358,12 @@ async function maybeDiscover() {
     // Discovery is a nice-to-have. It must never stop the actual poll.
     progress(`      discovery failed (${err.message}) - polling the existing board list`);
   }
-  fs.writeFileSync(DISCOVER_STATE,
-    JSON.stringify({ lastRun: new Date().toISOString(), adopted }));
+  // Merge - discover.js keeps its dead-token map in this same file.
+  let state = {};
+  try { state = JSON.parse(fs.readFileSync(DISCOVER_STATE, 'utf8')); } catch { /* first run */ }
+  state.lastRun = new Date().toISOString();
+  state.adopted = adopted;
+  fs.writeFileSync(DISCOVER_STATE, JSON.stringify(state));
   return adopted;
 }
 

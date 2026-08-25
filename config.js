@@ -104,6 +104,19 @@ module.exports = {
     { token: 'comet', name: 'Comet', verified: true },
     { token: 'assemblyai', name: 'AssemblyAI', verified: true },
     { token: 'lightningai', name: 'Lightning AI', verified: true },
+    // --- Third discover.js sweep, 25 Aug 2026 (531 tokens). ---
+    { token: 'karbon', name: 'Karbon', verified: true },
+    { token: 'airtable', name: 'Airtable', verified: true },
+    { token: 'asana', name: 'Asana', verified: true },
+    { token: 'smartsheet', name: 'Smartsheet', verified: true },  // 5 India backend
+    { token: 'typeform', name: 'Typeform', verified: true },
+    { token: 'calendly', name: 'Calendly', verified: true },
+    { token: 'webflow', name: 'Webflow', verified: true },
+    { token: 'wrike', name: 'Wrike', verified: true },
+    { token: 'storyblok', name: 'Storyblok', verified: true },
+    { token: 'contentful', name: 'Contentful', verified: true },
+    { token: 'melio', name: 'Melio', verified: true },
+    { token: 'algolia', name: 'Algolia', verified: true },
   ],
 
   // The EU Greenhouse host does not exist. Kept as an empty array because
@@ -132,6 +145,11 @@ module.exports = {
     { token: 'nium', name: 'Nium', verified: true },
     { token: 'sysdig', name: 'Sysdig', verified: true },
     { token: 'tinybird', name: 'Tinybird', verified: true },
+    // --- Third discover.js sweep, 25 Aug 2026 (531 tokens). ---
+    { token: 'kenko', name: 'Kenko', verified: true },
+    { token: 'prismic', name: 'Prismic', verified: true },
+    { token: 'zilliz', name: 'Zilliz', verified: true },
+    { token: 'dlocal', name: 'dLocal', verified: true },
   ],
 
   ashby: [
@@ -178,6 +196,14 @@ module.exports = {
     { token: 'modal', name: 'Modal', verified: true },
     { token: 'baseten', name: 'Baseten', verified: true },
     { token: 'runpod', name: 'RunPod', verified: true },
+    // --- Third discover.js sweep, 25 Aug 2026 (531 tokens). ---
+    { token: 'miro', name: 'Miro', verified: true },
+    { token: 'notion', name: 'Notion', verified: true },
+    { token: 'clickup', name: 'ClickUp', verified: true },
+    { token: 'sanity', name: 'Sanity', verified: true },
+    { token: 'pinecone', name: 'Pinecone', verified: true },
+    { token: 'weaviate', name: 'Weaviate', verified: true },
+    { token: 'nubank', name: 'Nubank', verified: true },
   ],
 
   // ---------------------------------------------------------------------------
@@ -210,6 +236,11 @@ module.exports = {
     { token: 'bluestone', name: 'BlueStone', verified: true },
     { token: 'newtonschool', name: 'Newton School', verified: true },
     { token: 'together', name: 'Together AI', verified: true },
+    // --- Third discover.js sweep, 25 Aug 2026 (531 tokens). ---
+    { token: 'ixigo', name: 'ixigo', verified: true },
+    { token: 'vegrow', name: 'Vegrow', verified: true },
+    { token: 'captainfresh', name: 'Captain Fresh', verified: true },  // 1 India backend
+    { token: 'canva', name: 'Canva', verified: true },
   ],
 
   // ---------------------------------------------------------------------------
@@ -332,7 +363,13 @@ module.exports = {
   // Not every run: discovery is ~1,800 requests and finds nothing unless a
   // company newly adopts one of the four ATS platforms or candidates.txt
   // grows. Override per-run with --discover-now or --no-discover.
-  discoverEveryDays: 5,
+  discoverEveryDays: 1,
+
+  // How long a token that 404d is left alone before being retried. Dead
+  // tokens are ~92% of all probes and are the reason a sweep looks like
+  // enumeration rather than reading; retries are staggered by a hash of the
+  // token so they spread evenly across days instead of arriving together.
+  deadRetryDays: 7,
 
   // Jobs scoring below this are logged but not surfaced in the report.
   minScore: 20,
