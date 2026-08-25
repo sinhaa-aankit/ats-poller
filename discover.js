@@ -150,16 +150,52 @@ function loadCandidates() {
     .filter(Boolean);
 }
 
-const EXISTING = new Set();
+const EXISTING = new Set();       // "platform:token"
+const EXISTING_TOKENS = new Set(); // token on ANY platform
 [['greenhouse', config.greenhouse], ['lever', config.lever], ['ashby', config.ashby],
   ['smartrecruiters', config.smartrecruiters || []]]
-  .forEach(([key, arr]) => arr.forEach((b) => EXISTING.add(key + ':' + b.token)));
+  .forEach(([key, arr]) => arr.forEach((b) => {
+    EXISTING.add(key + ':' + b.token);
+    EXISTING_TOKENS.add(b.token);
+  }));
+
+// Writes confirmed new boards straight into config.js. Names are the token as
+// a placeholder - a human renames them later. Inserts before each array's
+// closing bracket, one array at a time so the offsets stay valid.
+function adoptIntoConfig(rows) {
+  const file = path.join(__dirname, 'config.js');
+  let src = fs.readFileSync(file, 'utf8');
+  const stamp = new Date().toISOString().slice(0, 10);
+  let added = 0;
+
+  for (const ats of Object.keys(ATS)) {
+    const mine = rows.filter((b) => b.ats === ats);
+    if (!mine.length) continue;
+    const open = src.indexOf('\n  ' + ats + ': [');
+    if (open < 0) { console.error('  ! no ' + ats + ' array in config.js, skipped'); continue; }
+    const close = src.indexOf('\n  ],', open);
+    if (close < 0) { console.error('  ! ' + ats + ' array looks malformed, skipped'); continue; }
+    const block = '\n    // Auto-adopted by discover.js on ' + stamp
+      + '. Names are placeholders.\n'
+      + mine.map((b) => {
+        const note = b.india ? '  // ' + b.india + ' India backend' : '';
+        return "    { token: '" + b.token + "', name: '" + b.token
+          + "', verified: true }," + note;
+      }).join('\n');
+    src = src.slice(0, close) + block + src.slice(close);
+    added += mine.length;
+  }
+
+  fs.writeFileSync(file, src);
+  return added;
+}
 
 // Bengaluru or India-remote, matching the poller's own intent.
 const INDIA = /bengaluru|bangalore|^india|[,\s]india|remote\s*[-,]?\s*india/i;
 
-(async () => {
-  const tokens = [...new Set(loadCandidates())];
+async function discover(opts = {}) {
+  const adopt = opts.adopt || process.argv.includes('--adopt');
+  const tokens = [...new Set(opts.tokens || loadCandidates())];
   const requests = [];
   tokens.forEach((token) => {
     Object.keys(ATS).forEach((ats) => requests.push({ token, ats }));
@@ -186,10 +222,25 @@ const INDIA = /bengaluru|bangalore|^india|[,\s]india|remote\s*[-,]?\s*india/i;
   });
 
   console.log('\nPhase 1: ' + live.length + ' live boards from ' + tokens.length + ' tokens.');
-  const fresh = live.filter((b) => !EXISTING.has(b.ats + ':' + b.token));
+  // Three filters, every one of which exists to stop the same job being
+  // reported twice under different ids:
+  //   - already polled on this platform
+  //   - already polled on ANOTHER platform (smartrecruiters:netskope looks new
+  //     when greenhouse:netskope is already in config)
+  //   - live on two platforms within this same sweep: keep the bigger board
+  const byToken = new Map();
+  live
+    .filter((b) => !EXISTING.has(b.ats + ':' + b.token))
+    .filter((b) => !EXISTING_TOKENS.has(b.token))
+    .forEach((b) => {
+      const prev = byToken.get(b.token);
+      if (!prev || b.total > prev.total) byToken.set(b.token, b);
+    });
+  const fresh = [...byToken.values()];
+
   if (!fresh.length) {
     console.log('Nothing new - every live board is already in config.js.');
-    return;
+    return { live: live.length, fresh: 0, adopted: 0 };
   }
   console.log(fresh.length + ' are new. Scoring them...\n');
 
@@ -258,5 +309,22 @@ const INDIA = /bengaluru|bangalore|^india|[,\s]india|remote\s*[-,]?\s*india/i;
         + "', verified: true }," + note);
     });
   });
-  console.log('\nReplace each name with the real company name before committing.');
-})();
+  if (adopt) {
+    const added = adoptIntoConfig(fresh);
+    console.log('\n' + '='.repeat(72));
+    console.log('ADOPTED ' + added + ' board(s) into config.js');
+    console.log('='.repeat(72));
+    console.log('Names are placeholders - rename them when convenient.');
+    return { live: live.length, fresh: fresh.length, adopted: added };
+  }
+
+  console.log('\nReplace each name with the real company name before committing,');
+  console.log('or re-run with --adopt to write them in automatically.');
+  return { live: live.length, fresh: fresh.length, adopted: 0 };
+}
+
+module.exports = { discover };
+
+if (require.main === module) {
+  discover().catch((e) => { console.error('Fatal:', e); process.exit(1); });
+}

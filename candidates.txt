@@ -501,3 +501,119 @@ baseten
 anyscale
 lightningai
 runpod
+
+# ===========================================================================
+# Third sweep, 25 Aug 2026 - the second sweep hit 39% (170 live / 439), so
+# the list is nowhere near exhausted. Append freely; a wrong guess costs one
+# 404 and discover.js dedupes against config.js automatically.
+# ===========================================================================
+
+# --- Indian fintech / payments (third pass) -------------------------------
+instamojo
+ezetap
+mswipe
+innoviti
+wibmo
+payglocal
+skydo
+karbon
+openfinancial
+zwitch
+niyo
+fisdom
+scripbox
+paytmmoney
+khatabook
+okcredit
+
+# --- Indian travel / mobility / hospitality -------------------------------
+oyo
+oyorooms
+treebo
+fabhotels
+ixigo
+cleartrip
+easemytrip
+yatra
+redbus
+chalo
+tummoc
+
+# --- Indian B2B / manufacturing / supply chain ----------------------------
+moglix
+zetwerk
+infra-market
+ofbusiness
+bizongo
+vegrow
+captainfresh
+stellapps
+cropin
+bharatagri
+
+# --- Indian deeptech / space ----------------------------------------------
+agnikul
+skyroot
+pixxel
+digantara
+tonbo
+ideaforge
+garuda
+
+# --- Indian gaming / social ------------------------------------------------
+zupee
+gamezop
+rooter
+loco
+
+# --- Indian HR / healthtech (third pass) -----------------------------------
+hrone
+greythr
+springverify
+pristyncare
+mediassist
+kenko
+even
+
+# --- Global SaaS / collaboration -------------------------------------------
+canva
+miro
+notion
+airtable
+asana
+monday
+clickup
+smartsheet
+wrike
+loom
+grammarly
+calendly
+typeform
+hotjar
+webflow
+contentful
+sanity
+storyblok
+strapi
+prismic
+
+# --- Search / vector / data ------------------------------------------------
+algolia
+meilisearch
+typesense
+pinecone
+weaviate
+qdrant
+chroma
+milvus
+zilliz
+
+# --- Global fintech (third pass) -------------------------------------------
+nubank
+mercadolibre
+dlocal
+bill
+avidxchange
+tipalti
+melio
+routable

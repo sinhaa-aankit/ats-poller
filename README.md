@@ -23,10 +23,13 @@ Node 18+ only. **No dependencies, no `npm install`.** It uses built-in `fetch`.
 ## Usage
 
 ```bash
-node index.js          # report only roles never seen before
-node index.js --all    # also print the full ranked list of everything open
-node discover.js       # hunt for company boards not yet in config.js
-node test.js           # 100 assertions, no network access
+node index.js              # report only roles never seen before
+node index.js --all        # also print the full ranked list of everything open
+node index.js --discover-now  # force a board-discovery pass first
+node index.js --no-discover   # skip discovery even if it is due
+node discover.js           # hunt for boards not yet in config.js, print them
+node discover.js --adopt   # ...and write them into config.js automatically
+node test.js               # 103 assertions, no network access
 ```
 
 Or via npm scripts: `npm start`, `npm run all`, `npm run discover`, `npm test`.
@@ -122,9 +125,31 @@ Two phases — a cheap liveness probe across every candidate, then a full fetch
 and score for only the boards that came back alive — ending in paste-ready
 `config.js` lines. It writes nothing to disk and never touches `seen.json`.
 
-Add company-name guesses to `candidates.txt` and re-run it every month or so.
-Two sweeps so far: 270 tokens → 81 live → 43 added, then 439 tokens → 170 live
-→ 77 added.
+### It runs itself
+
+`index.js` tracks when discovery last ran (`.discover-state.json`, gitignored)
+and triggers it with `--adopt` once it is older than `discoverEveryDays` in
+`config.js` — 30 days by default. Boards adopted mid-run are polled in that
+same run, so nothing waits for tomorrow.
+
+It is deliberately **not** run on every poll:
+
+- discovery is ~1,800 requests against the poll's 158, turning a 3-minute run
+  into 10
+- it finds nothing on almost every day. New boards appear only when a company
+  newly adopts one of the four platforms, or when `candidates.txt` grows —
+  probing the same unchanged tokens daily is 12× the load on free public APIs
+  for near-zero yield
+- discovery failures are caught and swallowed; they must never stop the poll
+
+Adopted boards get the token as a placeholder `name` — rename them when
+convenient. Nothing else about them is guessed.
+
+### Sweeps so far
+
+Append guesses to `candidates.txt` freely; a wrong one costs a single 404.
+270 tokens → 81 live → 43 added, then 439 → 170 live → 77 added. The second
+sweep still hit 39%, so the list is far from exhausted — it now holds 531.
 
 Three things to watch:
 

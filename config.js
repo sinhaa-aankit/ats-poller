@@ -328,6 +328,12 @@ module.exports = {
     },
   },
 
+  // How often index.js runs board discovery and adopts what it finds.
+  // Not every run: discovery is ~1,800 requests and finds nothing unless a
+  // company newly adopts one of the four ATS platforms or candidates.txt
+  // grows. Override per-run with --discover-now or --no-discover.
+  discoverEveryDays: 30,
+
   // Jobs scoring below this are logged but not surfaced in the report.
   minScore: 20,
 

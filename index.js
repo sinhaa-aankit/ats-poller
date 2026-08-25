@@ -315,19 +315,76 @@ function progress(msg) {
   process.stderr.write(msg + '\n');
 }
 
+const DISCOVER_STATE = path.join(__dirname, '.discover-state.json');
+
+// Board discovery costs ~1,800 requests and almost always finds nothing: new
+// boards appear only when a company adopts one of the four ATS platforms, or
+// when candidates.txt grows. Running it on every poll would be 12x the load on
+// free public APIs for near-zero yield, so it runs on a timer instead -
+// automatic, but paid monthly rather than daily.
+//
+//   --discover-now   run it this time regardless of when it last ran
+//   --no-discover    skip it even if due
+async function maybeDiscover() {
+  if (process.argv.includes('--no-discover')) return 0;
+  const everyDays = config.discoverEveryDays || 30;
+  const force = process.argv.includes('--discover-now');
+
+  let last = null;
+  try {
+    last = JSON.parse(fs.readFileSync(DISCOVER_STATE, 'utf8')).lastRun;
+  } catch { /* never run before */ }
+  const ageDays = last ? (Date.now() - Date.parse(last)) / 86400000 : Infinity;
+
+  if (!force && ageDays < everyDays) {
+    progress(`[0/4] Discovery not due - last ran ${Math.floor(ageDays)}d ago, runs every ${everyDays}d`);
+    return 0;
+  }
+
+  progress('[0/4] Board discovery is due - probing candidates.txt, takes a few minutes...');
+  let adopted = 0;
+  // discover.js reports with console.log. Inside a poll run that would land in
+  // the report on stdout, so route it to stderr for the duration.
+  const realLog = console.log;
+  console.log = (...a) => process.stderr.write(a.join(' ') + '\n');
+  try {
+    const { discover } = require('./discover');
+    const res = await discover({ adopt: true });
+    adopted = res.adopted;
+    console.log = realLog;
+    progress(`      ${res.live} live, ${res.fresh} new, ${adopted} adopted into config.js`);
+  } catch (err) {
+    console.log = realLog;
+    // Discovery is a nice-to-have. It must never stop the actual poll.
+    progress(`      discovery failed (${err.message}) - polling the existing board list`);
+  }
+  fs.writeFileSync(DISCOVER_STATE,
+    JSON.stringify({ lastRun: new Date().toISOString(), adopted }));
+  return adopted;
+}
+
+// Boards adopted moments ago are only in the config on disk, not the one this
+// process required at startup.
+function reloadConfig() {
+  delete require.cache[require.resolve('./config')];
+  return require('./config');
+}
+
 async function run() {
   const started = Date.now();
+  const adopted = await maybeDiscover();
+  const cfg = adopted ? reloadConfig() : config;
   const tasks = [
-    ...config.greenhouse.map((c) => ({
+    ...cfg.greenhouse.map((c) => ({
       label: `${c.name} (greenhouse:${c.token})`, run: () => fetchGreenhouse(c) })),
-    ...config.euGreenhouse.map((c) => ({
+    ...cfg.euGreenhouse.map((c) => ({
       label: `${c.name} (eu-greenhouse:${c.token})`,
       run: () => fetchGreenhouse(c, 'boards-api.eu.greenhouse.io') })),
-    ...config.lever.map((c) => ({
+    ...cfg.lever.map((c) => ({
       label: `${c.name} (lever:${c.token})`, run: () => fetchLever(c) })),
-    ...config.ashby.map((c) => ({
+    ...cfg.ashby.map((c) => ({
       label: `${c.name} (ashby:${c.token})`, run: () => fetchAshby(c) })),
-    ...(config.smartrecruiters || []).map((c) => ({
+    ...(cfg.smartrecruiters || []).map((c) => ({
       label: `${c.name} (smartrecruiters:${c.token})`,
       run: () => fetchSmartRecruiters(c) })),
   ];
@@ -461,11 +518,15 @@ function report({ all, relevant, scored, fresh, failures }) {
   console.log(`\n[saved] ${file}`);
 }
 
+// Exported BEFORE run() is invoked, on purpose. maybeDiscover() requires
+// ./discover, which requires ./index straight back for isRelevant and score.
+// With the assignment below the run() call, that circular require resolved to
+// an empty object and discovery silently scored nothing.
+module.exports = { isRelevant, score, extractMinYears };
+
 if (require.main === module) {
   run().catch((e) => {
     console.error('Fatal:', e);
     process.exit(1);
   });
 }
-
-module.exports = { isRelevant, score, extractMinYears };

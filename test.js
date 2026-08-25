@@ -163,5 +163,24 @@ const title = (t) => isRelevant({ title: t, location: 'Bengaluru',
  ['SDE 3 - Platform Engineering', true],
 ].forEach(([t, want]) => check(`title "${t}"`, title(t), want));
 
+console.log('\n=== 12. CONFIG INVARIANTS ===');
+// discover.js --adopt writes into config.js unattended, and index.js can now
+// trigger it on a timer. The invariant that stops the same job being reported
+// twice under two ids therefore needs a guard here, not just care at review.
+const cfg = require('./config');
+const boards = [].concat(
+  cfg.greenhouse.map((b) => ['greenhouse', b]),
+  (cfg.euGreenhouse || []).map((b) => ['euGreenhouse', b]),
+  cfg.lever.map((b) => ['lever', b]),
+  cfg.ashby.map((b) => ['ashby', b]),
+  (cfg.smartrecruiters || []).map((b) => ['smartrecruiters', b]));
+const allTokens = boards.map(([, b]) => b.token);
+check('no token appears on two platforms',
+  [...new Set(allTokens.filter((t, i) => allTokens.indexOf(t) !== i))], []);
+check('every board has a token and a name',
+  boards.filter(([, b]) => !b.token || !b.name).map(([p, b]) => p + ':' + b.token), []);
+check('no token contains whitespace',
+  allTokens.filter((t) => /\s/.test(t)), []);
+
 console.log(`\n${'='.repeat(50)}\n${pass} passed, ${fail} failed`);
 if (fail) { console.log('\nFAILURES:'); failures.forEach(f => console.log('  - ' + f)); process.exit(1); }
