@@ -182,5 +182,22 @@ check('every board has a token and a name',
 check('no token contains whitespace',
   allTokens.filter((t) => /\s/.test(t)), []);
 
+console.log('\n=== 13. FORWARD DEPLOYED ENGINEER COVERAGE ===');
+// FDE titles already passed on the word "engineer" - Razorpay's Bengaluru FDE
+// has been scoring 49. The gap was titles carrying no other role noun.
+const fde = (t, l) => isRelevant({ title: t, location: l || 'Bengaluru',
+  content: 'Node.js payment API integration' });
+[['FDE', true], ['FDE II', true], ['Forward Deployed Strategist', true],
+ ['Forward Deployed Engineer', true], ['Forward Deployed Software Engineer', true],
+].forEach(([t, want]) => check(`fde title "${t}"`, fde(t), want));
+
+// The reason ~50 Palantir and GitLab FDE roles do not reach the report is
+// location, not title. Keep it that way.
+[['Forward Deployed Software Engineer', 'Washington, D.C.'],
+ ['Forward Deployed Engineer - EMEA', 'Remote, Germany'],
+ ['Staff Forward Deployed Engineer', 'Remote, US'],
+ ['Forward Deployed Software Engineer, Internship', 'New York, NY'],
+].forEach(([t, l]) => check(`fde outside India rejected: "${l}"`, fde(t, l), false));
+
 console.log(`\n${'='.repeat(50)}\n${pass} passed, ${fail} failed`);
 if (fail) { console.log('\nFAILURES:'); failures.forEach(f => console.log('  - ' + f)); process.exit(1); }

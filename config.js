@@ -252,7 +252,11 @@ module.exports = {
   // "Senior Engineer, Messaging Platform" and "Software Development Engineer III",
   // which were the two best real matches found. Titles vary too much to
   // whitelist. Cast wide here, let hardExcludes and scoring do the filtering.
-  roleKeywords: ['engineer', 'developer', 'sde', 'architect', 'programmer', 'backend'],
+  // 'fde' and 'forward deployed' added 28 Aug 2026. "Forward Deployed
+  // Engineer" already passed on 'engineer', but a bare "FDE II" or a
+  // "Forward Deployed Strategist" carries no other role noun and was missed.
+  roleKeywords: ['engineer', 'developer', 'sde', 'architect', 'programmer', 'backend',
+                 'fde', 'forward deployed'],
 
   // Bengaluru or remote only.
   locationKeywords: [
