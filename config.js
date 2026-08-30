@@ -117,6 +117,8 @@ module.exports = {
     { token: 'contentful', name: 'Contentful', verified: true },
     { token: 'melio', name: 'Melio', verified: true },
     { token: 'algolia', name: 'Algolia', verified: true },
+    // Auto-adopted by discover.js on 2026-08-30. Names are placeholders.
+    { token: 'streamnative', name: 'streamnative', verified: true },
   ],
 
   // The EU Greenhouse host does not exist. Kept as an empty array because
@@ -260,7 +262,10 @@ module.exports = {
 
   // Bengaluru or remote only.
   locationKeywords: [
-    'bangalore', 'bengaluru', 'remote', 'anywhere', 'distributed',
+    // 'distributed' removed 30 Aug 2026: Cloudflare labels every remote role
+    // "Distributed", so it waved through postings for East China, Detroit and
+    // Nashville. A genuinely distributed role still says 'remote' somewhere.
+    'bangalore', 'bengaluru', 'remote', 'anywhere',
     'india',           // bare "India" with no city named - usually remote/flexible
   ],
 
@@ -298,6 +303,9 @@ module.exports = {
     'sap',
     // Added 21 Aug 2026 - PhonePe's firmware role cleared at 20 pts.
     'firmware',
+    // Added 30 Aug 2026. Customer Engineer at Cloudflare et al is a
+    // quota-carrying pre-sales role, not backend engineering.
+    'customer engineer',
   ],
 
   // ---------------------------------------------------------------------------

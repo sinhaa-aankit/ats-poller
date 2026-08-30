@@ -199,5 +199,20 @@ const fde = (t, l) => isRelevant({ title: t, location: l || 'Bengaluru',
  ['Forward Deployed Software Engineer, Internship', 'New York, NY'],
 ].forEach(([t, l]) => check(`fde outside India rejected: "${l}"`, fde(t, l), false));
 
+console.log('\n=== 14. "DISTRIBUTED" IS NOT A LOCATION ===');
+// Cloudflare labels every remote posting "Distributed", which waved through
+// roles for East China, Detroit and Nashville. A genuinely location-free role
+// says "remote" somewhere, and that path is tested in section 10.
+const dist = (t, l) => isRelevant({ title: t, location: l,
+  content: 'javascript REST API' });
+check('"Distributed" alone no longer qualifies',
+  dist('Senior Backend Engineer', 'Distributed'), false);
+check('customer engineer excluded (quota-carrying pre-sales)',
+  dist('Senior Customer Engineer', 'Bengaluru'), false);
+check('customer engineer excluded even in India',
+  dist('Senior Customer Engineer, East China', 'Bengaluru, India'), false);
+check('"Remote, Distributed" still passes - it says remote',
+  dist('Senior Backend Engineer', 'Remote, Distributed'), true);
+
 console.log(`\n${'='.repeat(50)}\n${pass} passed, ${fail} failed`);
 if (fail) { console.log('\nFAILURES:'); failures.forEach(f => console.log('  - ' + f)); process.exit(1); }
