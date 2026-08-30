@@ -214,5 +214,23 @@ check('customer engineer excluded even in India',
 check('"Remote, Distributed" still passes - it says remote',
   dist('Senior Backend Engineer', 'Remote, Distributed'), true);
 
+console.log('\n=== 15. ADJACENT-DISCIPLINE TITLES ===');
+// Every one of these reached a real report and none is backend product
+// engineering. Kept as tests because they are easy to reintroduce by
+// loosening roleKeywords.
+const adj = (t) => isRelevant({ title: t, location: 'Bengaluru',
+  content: 'Node.js javascript payment API' });
+['Senior Network Engineer', 'Network Engineer',
+ 'Senior Security Engineer', 'Security Engineer 2',
+ 'Senior Security Engineer (Application Security)',
+ 'Senior Salesforce Developer, Service Cloud',
+ 'Lead Salesforce Full Stack AI Engineer',
+].forEach((t) => check(`adjacent-discipline: "${t}"`, adj(t), false));
+
+// Deliberately still allowed: the words are not contiguous, and infrastructure
+// work at a payments company is close enough to keep looking at.
+check('"Security Infrastructure Engineer" still passes',
+  adj('Senior Security Infrastructure Engineer'), true);
+
 console.log(`\n${'='.repeat(50)}\n${pass} passed, ${fail} failed`);
 if (fail) { console.log('\nFAILURES:'); failures.forEach(f => console.log('  - ' + f)); process.exit(1); }

@@ -306,6 +306,10 @@ module.exports = {
     // Added 30 Aug 2026. Customer Engineer at Cloudflare et al is a
     // quota-carrying pre-sales role, not backend engineering.
     'customer engineer',
+    // Added 30 Aug 2026 - all three surfaced repeatedly and none is backend
+    // product engineering. 'salesforce' catches the CRM-developer roles that
+    // score on 'javascript' and nothing else.
+    'network engineer', 'security engineer', 'salesforce',
   ],
 
   // ---------------------------------------------------------------------------
