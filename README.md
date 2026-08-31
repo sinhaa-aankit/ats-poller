@@ -164,7 +164,22 @@ Three things to watch:
 - SmartRecruiters answers **200 with an empty list** for a company that does
   not exist, so HTTP status is not a liveness test there — `totalFound > 0` is.
 
-## Scheduling
+## Running it
+
+Manually is fine and is what this repo currently does — there is no scheduled
+task installed:
+
+```bash
+node index.js
+```
+
+Takes ~5 minutes across 185 boards, plus a discovery pass on the first run of
+each day. Add `--no-discover` for a quick ~3-minute poll.
+
+## Scheduling (optional)
+
+Skip this unless you want it unattended. Two failure modes bit this project for
+a week each, so both are written down.
 
 **Windows** (Task Scheduler — there is no `cron`):
 
@@ -200,9 +215,33 @@ Verify it actually ran:
 schtasks /Query /TN "ATS Poller Daily" /FO LIST /V
 ```
 
-`Last Result: 0` means it ran. `-2147020576` means Task Scheduler killed it —
-almost always the battery condition above, and nothing is written to
-`poll.log` in that case, which is what makes it easy to miss.
+`Last Result: 0` means it ran.
+
+`-2147020576` (`0x800710E0`, `ERROR_OPERATION_ABORTED`) means Task Scheduler
+killed it before it started — almost always the battery condition above, and
+nothing reaches `poll.log`, which is what makes it easy to miss.
+
+`3221225786` (`0xC000013A`, `STATUS_CONTROL_C_EXIT`) is the nastier one: the
+run *starts*, writes a few boards to `poll.log`, then dies. That is a task
+running as `LogonType: Interactive`, which lives inside your desktop session.
+`-WakeToRun` wakes the machine at the trigger time, the task starts, and then
+Windows returns to sleep a couple of minutes later because nobody is using the
+machine — taking the console process with it. Seven consecutive nights failed
+this way, each getting 8–9 boards in before the `^C`.
+
+The fix needs an **elevated** shell, because changing a task's principal does:
+
+```powershell
+$p = New-ScheduledTaskPrincipal -UserId "$env:USERDOMAIN\$env:USERNAME" `
+       -LogonType S4U -RunLevel Limited
+Set-ScheduledTask -TaskName "ATS Poller Daily" -Principal $p
+```
+
+S4U runs the task outside the interactive session, so there is no console to
+kill and it survives lock, logoff and re-sleep. No stored password required.
+
+Whichever you use, check `poll.log` after the first night. A run that logs
+`===== run started` with no matching `===== exit code` did not finish.
 
 ## Notifications
 
@@ -218,7 +257,7 @@ if (fresh.length && process.env.TG_TOKEN) {
 }
 ```
 
-Create a bot with @BotFather and set `TG_TOKEN` / `TG_CHAT` in the task
+Create a bot with @BotFather and set `TG_TOKEN` / `TG_CHAT` in your
 environment. Silence means nothing new; a buzz means open your phone.
 
 ## Tuning

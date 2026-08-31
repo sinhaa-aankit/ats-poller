@@ -206,6 +206,8 @@ module.exports = {
     { token: 'pinecone', name: 'Pinecone', verified: true },
     { token: 'weaviate', name: 'Weaviate', verified: true },
     { token: 'nubank', name: 'Nubank', verified: true },
+    // Auto-adopted by discover.js on 2026-08-31. Names are placeholders.
+    { token: 'expensify', name: 'expensify', verified: true },
   ],
 
   // ---------------------------------------------------------------------------
