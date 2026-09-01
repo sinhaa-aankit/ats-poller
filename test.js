@@ -232,5 +232,33 @@ const adj = (t) => isRelevant({ title: t, location: 'Bengaluru',
 check('"Security Infrastructure Engineer" still passes',
   adj('Senior Security Infrastructure Engineer'), true);
 
+console.log('\n=== 16. POSTING AGE ===');
+const { relativeAge, isStale } = require('./index');
+const daysAgo = (n) => new Date(Date.now() - (n * 86400000)).toISOString();
+[[0, 'today'], [1, '1d ago'], [5, '5d ago'], [20, '20d ago'],
+ [25, '3w ago'], [56, '8w ago'], [70, '2mo ago'], [160, '5mo ago'],
+].forEach(([n, want]) => check(`age of a ${n}-day-old posting`, relativeAge(daysAgo(n)), want));
+check('missing date yields no age', relativeAge(null), null);
+check('garbage date yields no age', relativeAge('not-a-date'), null);
+check('45 days is not stale', isStale(daysAgo(45)), false);
+check('90 days is stale', isStale(daysAgo(90)), true);
+check('missing date is not stale', isStale(null), false);
+
+console.log('\n=== 17. RECRUITING BOILERPLATE ===');
+// "We never ask for payment..." is an anti-scam footer in 100% of Twilio and
+// HackerRank postings. It was worth a phantom +10 domain hit on every one.
+const dom = (content) =>
+  score({ title: 'Backend Engineer', content }).hits.domain || [];
+check('anti-scam footer alone scores no domain hit',
+  dom('We never ask for payment or credit check information to apply.'), []);
+check('"do not ask for payment" variant also stripped',
+  dom('We do not ask for payment at any stage of the process.'), []);
+check('real payments content is untouched',
+  dom('We build payment processing and settlement for fintech transactions.'),
+  ['payment', 'fintech', 'transaction', 'settlement']);
+check('footer stripped without losing real content',
+  dom('Payments and transactions at scale. We never ask for payment to apply.'),
+  ['payment', 'transaction']);
+
 console.log(`\n${'='.repeat(50)}\n${pass} passed, ${fail} failed`);
 if (fail) { console.log('\nFAILURES:'); failures.forEach(f => console.log('  - ' + f)); process.exit(1); }

@@ -23,13 +23,15 @@ Node 18+ only. **No dependencies, no `npm install`.** It uses built-in `fetch`.
 ## Usage
 
 ```bash
-node index.js              # report only roles never seen before
-node index.js --all        # also print the full ranked list of everything open
+node index.js                 # report only roles never seen before
+node index.js --all           # also the full ranked list of everything open
 node index.js --discover-now  # force a board-discovery pass first
 node index.js --no-discover   # skip discovery even if it is due
-node discover.js           # hunt for boards not yet in config.js, print them
-node discover.js --adopt   # ...and write them into config.js automatically
-node test.js               # 103 assertions, no network access
+node discover.js              # hunt for boards not in config.js, print them
+node discover.js --adopt      # ...and write them into config.js automatically
+node applied.js <apply-url>   # mark a role applied; it stops appearing
+node applied.js --list        # what you have applied to
+node test.js                  # 141 assertions, no network access
 ```
 
 Or via npm scripts: `npm start`, `npm run all`, `npm run discover`, `npm test`.
@@ -49,6 +51,40 @@ the tool handing you yesterday's results.
 
 Reports land in `reports/YYYY-MM-DD-HHMM.md` — one file per run, so an ad-hoc
 run cannot overwrite what a scheduled run already reported.
+
+## Posting age
+
+Every report shows how old a requisition is, because response rate falls off a
+cliff with age — applicant 12 on a fresh posting beats applicant 400 on a
+five-month-old one:
+
+```
+### 56 pts - Sezzle: Senior Payments Engineer
+- Posted: 2d ago
+### 67 pts - HackerRank: Senior Backend Engineer
+- Posted: 5mo ago  ⚠️  stale requisition  (description updated 8d ago)
+```
+
+Anything older than 60 days is flagged. Note the second line: Greenhouse's
+`updated_at` moves whenever anyone edits a description, so a role open since
+March can surface as "new" today. The age shown is always `first_published` —
+preferring `updated_at`, which this code did originally, gets it exactly
+backwards.
+
+## Applied tracking
+
+`seen.json` answers "have I been told about this role". It does not answer
+"have I applied to it", so a role you applied to weeks ago keeps appearing in
+the `--all` table as though it were an option.
+
+```bash
+node applied.js https://job-boards.greenhouse.io/sezzle/jobs/7725286003
+```
+
+Paste the `Apply:` link straight from a report. Marked roles are dropped from
+future reports, and the run says how many it hid. `applied.json` is gitignored
+and deliberately separate from `seen.json` — deleting the latter to re-scan
+should not erase where you have applied.
 
 ## State
 

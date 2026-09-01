@@ -33,7 +33,12 @@ async function fetchGreenhouse({ token, name }, host = 'boards-api.greenhouse.io
     url: j.absolute_url,
     // Greenhouse returns HTML-escaped content; decode enough to search it.
     content: decodeEntities(j.content || ''),
-    postedAt: j.updated_at || j.first_published || null,
+    // first_published is the real age. updated_at changes whenever anyone
+    // edits the description, and preferring it made a requisition open since
+    // March look like it appeared yesterday - which is exactly backwards for
+    // deciding whether it is worth applying to.
+    postedAt: j.first_published || j.updated_at || null,
+    updatedAt: j.updated_at || null,
   }));
 }
 
@@ -120,6 +125,30 @@ function srLocation(loc) {
 // ---------------------------------------------------------------------------
 // HELPERS
 // ---------------------------------------------------------------------------
+
+// How old a posting is, in the roughest useful terms. Application response
+// rates fall off a cliff with age - being applicant 12 on a fresh req beats
+// being applicant 400 on a five-month-old one - so this belongs next to the
+// score rather than nowhere, which is where it lived until now.
+function relativeAge(iso) {
+  if (!iso) return null;
+  const ms = Date.now() - Date.parse(iso);
+  if (!Number.isFinite(ms) || ms < 0) return null;
+  const days = Math.floor(ms / 86400000);
+  if (days < 1) return 'today';
+  if (days === 1) return '1d ago';
+  if (days < 21) return days + 'd ago';
+  if (days < 60) return Math.floor(days / 7) + 'w ago';
+  return Math.floor(days / 30) + 'mo ago';
+}
+
+// Anything past this is very likely a stale requisition worth deprioritising.
+const STALE_DAYS = 60;
+
+function isStale(iso) {
+  if (!iso) return false;
+  return (Date.now() - Date.parse(iso)) / 86400000 > STALE_DAYS;
+}
 
 function stripTags(html) {
   return String(html).replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ');
@@ -262,8 +291,20 @@ function isRelevant(job) {
     'anywhere in india', 'based in india', 'hiring in india']);
 }
 
+// Recruiting boilerplate, not job content. "We never ask for payment or
+// credit-check information to apply" is an anti-scam footer that appears in
+// 100% of Twilio and HackerRank postings - measured at 89 of 440 JDs sampled,
+// and 87 of those mention "payment" nowhere else. It was worth a phantom +10
+// domain hit on every one of them, which is how a CDN role outranked a
+// payments role.
+function stripBoilerplate(text) {
+  return text.replace(
+    /[^.]*\b(?:never|not|don't|do not)\s+(?:ever\s+)?(?:ask|request|require)[^.]{0,60}\bpayment[^.]*\.?/gi,
+    ' ');
+}
+
 function score(job) {
-  const text = `${job.title} ${job.content}`;
+  const text = stripBoilerplate(`${job.title} ${job.content}`);
   const hits = {};
   let total = 0;
 
@@ -291,6 +332,18 @@ function score(job) {
 // ---------------------------------------------------------------------------
 // STATE
 // ---------------------------------------------------------------------------
+
+// URLs of roles already applied to, maintained by applied.js. Kept separate
+// from seen.json on purpose: deleting seen.json to re-scan should not wipe the
+// record of where you have already applied.
+function loadApplied() {
+  try {
+    const raw = JSON.parse(fs.readFileSync(path.join(__dirname, 'applied.json'), 'utf8'));
+    return new Set(Array.isArray(raw) ? raw : []);
+  } catch {
+    return new Set();
+  }
+}
 
 function loadSeen() {
   try {
@@ -450,14 +503,31 @@ async function run() {
   const seen = loadSeen();
   progress(`[4/4] Diffing against seen.json (${seen.size} already known)...`);
   const fresh = scored.filter((j) => !seen.has(`${j.source}:${j.id}`));
-  progress(`      ${fresh.length} NEW\n`);
+  progress(`      ${fresh.length} NEW`);
   scored.forEach((j) => seen.add(`${j.source}:${j.id}`));
   saveSeen(seen);
 
-  report({ all, relevant, scored, fresh, failures });
+  // Roles already applied to are dropped from the report entirely. "Seen" and
+  // "applied to" are different questions and seen.json only answers the first,
+  // so without this a role you applied to weeks ago keeps sitting in the
+  // --all table looking like an option.
+  const applied = loadApplied();
+  const drop = (j) => applied.has(j.url);
+  const appliedCount = scored.filter(drop).length;
+  if (appliedCount) progress(`      ${appliedCount} hidden (already applied)`);
+  progress('');
+
+  report({
+    all,
+    relevant,
+    scored: scored.filter((j) => !drop(j)),
+    fresh: fresh.filter((j) => !drop(j)),
+    failures,
+    appliedCount,
+  });
 }
 
-function report({ all, relevant, scored, fresh, failures }) {
+function report({ all, relevant, scored, fresh, failures, appliedCount = 0 }) {
   const stamp = new Date().toISOString().slice(0, 16).replace('T', ' ');
   const lines = [];
 
@@ -466,7 +536,8 @@ function report({ all, relevant, scored, fresh, failures }) {
   lines.push(`Fetched **${all.length}** postings. `
     + `**${relevant.length}** were India backend roles. `
     + `**${scored.length}** cleared the score threshold. `
-    + `**${fresh.length}** are NEW since the last run.`);
+    + `**${fresh.length}** are NEW since the last run.`
+    + (appliedCount ? ` ${appliedCount} already applied to and hidden.` : ''));
   lines.push('');
 
   if (failures.length) {
@@ -486,6 +557,12 @@ function report({ all, relevant, scored, fresh, failures }) {
     for (const j of fresh) {
       lines.push(`### ${j.total} pts - ${j.company}: ${j.title}`);
       lines.push(`- Location: ${j.location}`);
+      const age = relativeAge(j.postedAt);
+      if (age) {
+        const upd = relativeAge(j.updatedAt);
+        lines.push(`- Posted: ${age}${isStale(j.postedAt) ? '  ⚠️  stale requisition' : ''}`
+          + (upd && upd !== age ? ` (description updated ${upd})` : ''));
+      }
       lines.push(`- Experience asked: ${j.yearsNote}`);
       if (j.hits.strong) lines.push(`- Stack match: ${j.hits.strong.join(', ')}`);
       if (j.hits.domain) lines.push(`- Domain match: ${j.hits.domain.join(', ')}`);
@@ -501,10 +578,13 @@ function report({ all, relevant, scored, fresh, failures }) {
   if (scored.length && process.argv.includes('--all')) {
     lines.push('## ALL CURRENTLY OPEN (including previously seen)');
     lines.push('');
-    lines.push('| Score | Company | Role | Location | Exp | Link |');
-    lines.push('|---|---|---|---|---|---|');
+    lines.push('| Score | Company | Role | Location | Posted | Exp | Link |');
+    lines.push('|---|---|---|---|---|---|---|');
     for (const j of scored.slice(0, 40)) {
-      lines.push(`| ${j.total} | ${j.company} | ${j.title} | ${j.location} | ${j.yearsNote} | [open](${j.url}) |`);
+      const age = relativeAge(j.postedAt);
+      const posted = age ? age + (isStale(j.postedAt) ? ' ⚠️' : '') : '-';
+      lines.push(`| ${j.total} | ${j.company} | ${j.title} | ${j.location} `
+        + `| ${posted} | ${j.yearsNote} | [open](${j.url}) |`);
     }
   }
 
@@ -526,7 +606,7 @@ function report({ all, relevant, scored, fresh, failures }) {
 // ./discover, which requires ./index straight back for isRelevant and score.
 // With the assignment below the run() call, that circular require resolved to
 // an empty object and discovery silently scored nothing.
-module.exports = { isRelevant, score, extractMinYears };
+module.exports = { isRelevant, score, extractMinYears, relativeAge, isStale };
 
 if (require.main === module) {
   run().catch((e) => {
