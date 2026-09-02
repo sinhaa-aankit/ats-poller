@@ -31,7 +31,11 @@ module.exports = {
     // --- Indian market / Bengaluru headcount. All probed live 20 Aug 2026. ---
     // The original list was US-heavy, which capped how many Bengaluru backend
     // roles could exist to be found at all.
-    { token: 'phonepe', name: 'PhonePe', verified: true },      // 5 India backend
+    // PhonePe left all four ATS platforms some time before 1 Sep 2026 -
+    // 404 on Greenhouse/Lever/Ashby and empty on SmartRecruiters, and no
+    // token variant works. Check phonepe.com/careers by hand; it is too
+    // good a target to simply forget about.
+    // { token: 'phonepe', name: 'PhonePe', verified: false },
     { token: 'slice', name: 'slice', verified: true },
     { token: 'zscaler', name: 'Zscaler', verified: true },      // 11 India backend
     { token: 'rubrik', name: 'Rubrik', verified: true },        // 8 India backend
@@ -47,7 +51,6 @@ module.exports = {
     // polling both would report the same job twice under different ids.
     { token: 'purestorage', name: 'Pure Storage', verified: true },  // 13 India backend
     { token: 'fivetran', name: 'Fivetran', verified: true },  // 6 India backend
-    { token: 'clickhouse', name: 'ClickHouse', verified: true },  // 6 India backend
     { token: 'newrelic', name: 'New Relic', verified: true },  // 4 India backend
     { token: 'mongodb', name: 'MongoDB', verified: true },  // 4 India backend
     { token: 'adyen', name: 'Adyen', verified: true },  // 2 India backend
@@ -87,7 +90,7 @@ module.exports = {
     { token: 'block', name: 'Block', verified: true },
     { token: 'affirm', name: 'Affirm', verified: true },
     { token: 'chime', name: 'Chime', verified: true },
-    { token: 'marqeta', name: 'Marqeta', verified: true },
+    // { token: 'marqeta', name: 'Marqeta', verified: false }, // gone 1 Sep 2026
     { token: 'mercury', name: 'Mercury', verified: true },
     { token: 'thunes', name: 'Thunes', verified: true },
     { token: 'ebury', name: 'Ebury', verified: true },
@@ -178,6 +181,8 @@ module.exports = {
     { token: 'n8n', name: 'n8n', verified: true },
     { token: 'influxdata', name: 'InfluxData', verified: true },
     { token: 'materialize', name: 'Materialize', verified: true },
+    // Migrated off Greenhouse to Ashby, found 1 Sep 2026.
+    { token: 'clickhouse', name: 'ClickHouse', verified: true },
     // --- Second discover.js sweep, 22 Aug 2026 (439 tokens, 170 live). ---
     { token: 'sarvam', name: 'Sarvam AI', verified: true },  // 11 India backend
     { token: 'nanonets', name: 'Nanonets', verified: true },  // 4 India backend

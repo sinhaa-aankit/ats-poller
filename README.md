@@ -52,6 +52,42 @@ the tool handing you yesterday's results.
 Reports land in `reports/YYYY-MM-DD-HHMM.md` — one file per run, so an ad-hoc
 run cannot overwrite what a scheduled run already reported.
 
+## Board health
+
+A board that 404s once is a blip. The same board failing run after run is a
+dead token or a company that has migrated platforms — and that is coverage you
+believe you have and do not.
+
+Consecutive failures per board are tracked in `.board-health.json`
+(gitignored). At three in a row the report says so loudly, with the command to
+diagnose it:
+
+```
+## ⚠️  2 board(s) failing persistently
+
+- `greenhouse:phonepe` — failed 9 runs in a row
+- `greenhouse:marqeta` — failed 4 runs in a row
+
+node discover.js phonepe marqeta
+```
+
+Counters reset on any success and are pruned for boards no longer in
+`config.js`, so disabling a dead token silences it rather than nagging forever.
+
+Three real outcomes seen so far, all worth knowing:
+
+- **ClickHouse** migrated Greenhouse → Ashby. Same company, same token,
+  different platform. Repointed.
+- **PhonePe** left all four platforms. No token variant works. Genuinely
+  unreachable, so it is commented out with a note to check by hand — losing a
+  target silently is worse than losing it loudly.
+- **Marqeta** the same, disabled.
+
+Note the gotcha this exposed: `discover.js` dedupes by token across every
+platform, which is right for avoiding double-reports but means a migration
+looks like a duplicate and gets suppressed. If a board is failing, probe it
+directly rather than trusting a sweep to spot it.
+
 ## Posting age
 
 Every report shows how old a requisition is, because response rate falls off a

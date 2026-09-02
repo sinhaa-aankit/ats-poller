@@ -9,6 +9,7 @@ seed.js
 reports/
 poll.log
 .discover-state.json
+.board-health.json
 
 # Node
 node_modules/

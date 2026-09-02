@@ -333,6 +333,24 @@ function score(job) {
 // STATE
 // ---------------------------------------------------------------------------
 
+// A board failing this many runs in a row is a dead token or a company that
+// has migrated platforms, not a network blip.
+const CHRONIC_RUNS = 3;
+const HEALTH_FILE = path.join(__dirname, '.board-health.json');
+
+function loadHealth() {
+  try {
+    const raw = JSON.parse(fs.readFileSync(HEALTH_FILE, 'utf8'));
+    return (raw && typeof raw === 'object') ? raw : {};
+  } catch {
+    return {};
+  }
+}
+
+function saveHealth(health) {
+  fs.writeFileSync(HEALTH_FILE, JSON.stringify(health, null, 2) + '\n');
+}
+
 // URLs of roles already applied to, maintained by applied.js. Kept separate
 // from seen.json on purpose: deleting seen.json to re-scan should not wipe the
 // record of where you have already applied.
@@ -432,22 +450,29 @@ async function run() {
   const adopted = await maybeDiscover();
   const cfg = adopted ? reloadConfig() : config;
   const tasks = [
-    ...cfg.greenhouse.map((c) => ({
+    ...cfg.greenhouse.map((c) => ({ key: `greenhouse:${c.token}`,
       label: `${c.name} (greenhouse:${c.token})`, run: () => fetchGreenhouse(c) })),
-    ...cfg.euGreenhouse.map((c) => ({
+    ...cfg.euGreenhouse.map((c) => ({ key: `eu-greenhouse:${c.token}`,
       label: `${c.name} (eu-greenhouse:${c.token})`,
       run: () => fetchGreenhouse(c, 'boards-api.eu.greenhouse.io') })),
-    ...cfg.lever.map((c) => ({
+    ...cfg.lever.map((c) => ({ key: `lever:${c.token}`,
       label: `${c.name} (lever:${c.token})`, run: () => fetchLever(c) })),
-    ...cfg.ashby.map((c) => ({
+    ...cfg.ashby.map((c) => ({ key: `ashby:${c.token}`,
       label: `${c.name} (ashby:${c.token})`, run: () => fetchAshby(c) })),
-    ...(cfg.smartrecruiters || []).map((c) => ({
+    ...(cfg.smartrecruiters || []).map((c) => ({ key: `smartrecruiters:${c.token}`,
       label: `${c.name} (smartrecruiters:${c.token})`,
       run: () => fetchSmartRecruiters(c) })),
   ];
 
   const all = [];
   const failures = [];
+
+  // Consecutive-failure count per board. A single 404 is usually a blip; the
+  // same board failing run after run means a dead token or a company that has
+  // migrated platforms, and that is silent coverage loss. PhonePe disappeared
+  // from all four platforms and it only came to light because someone happened
+  // to read a log line.
+  const health = loadHealth();
 
   progress(`[1/4] Fetching ${tasks.length} boards...`);
 
@@ -479,11 +504,26 @@ async function run() {
     if (lastErr) {
       progress(`${tag}  ${task.label} - FAILED (${lastErr.message})`);
       failures.push(`${task.label}: ${lastErr.message}`);
+      health[task.key] = (health[task.key] || 0) + 1;
     } else {
       progress(`${tag}  ${task.label} - ${got} jobs`);
+      delete health[task.key];
     }
     await new Promise((r) => setTimeout(r, 250));
   }
+
+  // Forget boards that are no longer polled. Without this, disabling a dead
+  // token in config.js leaves its counter behind and the warning nags about a
+  // board you have already dealt with.
+  const polled = new Set(tasks.map((t) => t.key));
+  for (const key of Object.keys(health)) {
+    if (!polled.has(key)) delete health[key];
+  }
+
+  saveHealth(health);
+  const chronic = Object.entries(health)
+    .filter(([, n]) => n >= CHRONIC_RUNS)
+    .sort((a, b) => b[1] - a[1]);
 
   const secs = Math.round((Date.now() - started) / 1000);
   progress(`      ${all.length} postings fetched in ${secs}s`
@@ -524,10 +564,12 @@ async function run() {
     fresh: fresh.filter((j) => !drop(j)),
     failures,
     appliedCount,
+    chronic,
   });
 }
 
-function report({ all, relevant, scored, fresh, failures, appliedCount = 0 }) {
+function report({ all, relevant, scored, fresh, failures,
+  appliedCount = 0, chronic = [] }) {
   const stamp = new Date().toISOString().slice(0, 16).replace('T', ' ');
   const lines = [];
 
@@ -543,6 +585,25 @@ function report({ all, relevant, scored, fresh, failures, appliedCount = 0 }) {
   if (failures.length) {
     lines.push(`> ${failures.length} board(s) failed: ${failures.join(', ')}. `
       + `A 404 usually means a wrong token in config.js.`);
+    lines.push('');
+  }
+
+  // Loud on purpose. A board quietly 404ing for a fortnight is coverage you
+  // think you have and do not - which is the whole failure mode this tool
+  // exists to avoid.
+  if (chronic.length) {
+    lines.push(`## ⚠️  ${chronic.length} board(s) failing persistently`);
+    lines.push('');
+    for (const [key, runs] of chronic) {
+      lines.push(`- \`${key}\` — failed **${runs}** runs in a row`);
+    }
+    lines.push('');
+    lines.push('A token can rot, or the company can migrate platforms — ClickHouse');
+    lines.push('moved Greenhouse → Ashby. Probe it across all four:');
+    lines.push('');
+    lines.push('```bash');
+    lines.push(`node discover.js ${chronic.map(([k]) => k.split(':')[1]).join(' ')}`);
+    lines.push('```');
     lines.push('');
   }
 
