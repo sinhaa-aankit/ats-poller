@@ -283,7 +283,10 @@ async function discover(opts = {}) {
     if (done % 150 === 0) console.log('  ...' + done + '/' + requests.length + ' probed');
   });
 
-  saveState({ dead });
+  // Record lastRun here, not just in index.js. A sweep run directly from the
+  // CLI is still a sweep, and without this index.js sees stale state and
+  // repeats the whole thing on its next run.
+  saveState({ dead, lastRun: new Date().toISOString() });
 
   console.log('\nPhase 1: ' + live.length + ' live boards from ' + tokens.length + ' tokens.');
   // Three filters, every one of which exists to stop the same job being

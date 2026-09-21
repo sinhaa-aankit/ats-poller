@@ -122,6 +122,26 @@ module.exports = {
     { token: 'algolia', name: 'Algolia', verified: true },
     // Auto-adopted by discover.js on 2026-08-30. Names are placeholders.
     { token: 'streamnative', name: 'streamnative', verified: true },
+    // Auto-adopted by discover.js on 2026-09-21. Names are placeholders.
+    { token: 'clear', name: 'ClearTax', verified: true },
+    { token: 'devrev', name: 'DevRev', verified: true },  // 5 India backend
+    { token: 'cloudsek', name: 'CloudSEK', verified: true },
+    { token: 'turing', name: 'Turing', verified: true },
+    { token: 'tripadvisor', name: 'Tripadvisor', verified: true },
+    { token: 'agoda', name: 'Agoda', verified: true },
+    { token: 'squarespace', name: 'Squarespace', verified: true },
+    { token: 'godaddy', name: 'GoDaddy', verified: true },
+    { token: 'fastly', name: 'Fastly', verified: true },
+    { token: 'vonage', name: 'Vonage', verified: true },  // 1 India backend
+    { token: 'bandwidth', name: 'Bandwidth', verified: true },
+    { token: 'okta', name: 'Okta', verified: true },  // 17 India backend
+    { token: 'pingidentity', name: 'Ping Identity', verified: true },  // 1 India backend
+    { token: 'beyondtrust', name: 'BeyondTrust', verified: true },
+    { token: 'jfrog', name: 'JFrog', verified: true },
+    { token: 'make', name: 'Make', verified: true },
+    { token: 'hightouch', name: 'Hightouch', verified: true },
+    { token: 'sumologic', name: 'Sumo Logic', verified: true },
+    { token: 'veracode', name: 'Veracode', verified: true },
   ],
 
   // The EU Greenhouse host does not exist. Kept as an empty array because
@@ -155,6 +175,9 @@ module.exports = {
     { token: 'prismic', name: 'Prismic', verified: true },
     { token: 'zilliz', name: 'Zilliz', verified: true },
     { token: 'dlocal', name: 'dLocal', verified: true },
+    // Auto-adopted by discover.js on 2026-09-21. Names are placeholders.
+    { token: 'sonarsource', name: 'SonarSource', verified: true },
+    { token: 'metabase', name: 'Metabase', verified: true },
   ],
 
   ashby: [
@@ -213,6 +236,15 @@ module.exports = {
     { token: 'nubank', name: 'Nubank', verified: true },
     // Auto-adopted by discover.js on 2026-08-31. Names are placeholders.
     { token: 'expensify', name: 'expensify', verified: true },
+    // Auto-adopted by discover.js on 2026-09-21. Names are placeholders.
+    { token: 'bureau', name: 'Bureau', verified: true },  // 1 India backend
+    { token: 'semgrep', name: 'Semgrep', verified: true },
+    { token: 'camunda', name: 'Camunda', verified: true },
+    { token: 'zapier', name: 'Zapier', verified: true },
+    { token: 'lightdash', name: 'Lightdash', verified: true },
+    { token: 'incident', name: 'incident.io', verified: true },
+    { token: 'doppler', name: 'Doppler', verified: true },
+    { token: 'infisical', name: 'Infisical', verified: true },
   ],
 
   // ---------------------------------------------------------------------------
@@ -250,6 +282,11 @@ module.exports = {
     { token: 'vegrow', name: 'Vegrow', verified: true },
     { token: 'captainfresh', name: 'Captain Fresh', verified: true },  // 1 India backend
     { token: 'canva', name: 'Canva', verified: true },
+    // Auto-adopted by discover.js on 2026-09-21. Names are placeholders.
+    { token: 'kodo', name: 'Kodo', verified: true },
+    { token: 'facets', name: 'Facets', verified: true },
+    { token: 'wayfair', name: 'Wayfair', verified: true },
+    { token: 'unleash', name: 'Unleash', verified: true },
   ],
 
   // ---------------------------------------------------------------------------
