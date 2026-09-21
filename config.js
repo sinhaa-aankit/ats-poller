@@ -13,7 +13,13 @@
 
 module.exports = {
   greenhouse: [
-    { token: 'postman', name: 'Postman', verified: true },
+    // Postman left all four ATS platforms some time before 22 Sep 2026 -
+    // 404 everywhere, and getpostman/postmanlabs are dead too. It was the
+    // first company in this file and supplied 8 of the 23 seeded roles, so
+    // check postman.com/company/careers by hand.
+    // { token: 'postman', name: 'Postman', verified: false },
+    // Migrated off Ashby to Greenhouse, found 22 Sep 2026.
+    { token: 'amplitude', name: 'Amplitude', verified: true },
     { token: 'razorpaysoftwareprivatelimited', name: 'Razorpay', verified: true },
     { token: 'twilio', name: 'Twilio', verified: true },
     // Groww is NOT on an EU instance - boards-api.eu.greenhouse.io does not
@@ -193,7 +199,6 @@ module.exports = {
     { token: 'livekit', name: 'LiveKit', verified: true },  // 1 India backend
     { token: 'plaid', name: 'Plaid', verified: true },  // 404s on Greenhouse, live here
     { token: 'redis', name: 'Redis', verified: true },
-    { token: 'amplitude', name: 'Amplitude', verified: true },
     { token: 'airbyte', name: 'Airbyte', verified: true },
     { token: 'velocity', name: 'Velocity', verified: true },
     { token: 'replit', name: 'Replit', verified: true },

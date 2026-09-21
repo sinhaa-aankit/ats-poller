@@ -148,7 +148,7 @@ Verifying a token takes ten seconds:
 3. Read the token out of the URL
 
 ```
-job-boards.greenhouse.io/postman/jobs/123   -> greenhouse:      "postman"
+job-boards.greenhouse.io/gitlab/jobs/123    -> greenhouse:      "gitlab"
 jobs.lever.co/gohighlevel/abc-123           -> lever:           "gohighlevel"
 jobs.ashbyhq.com/confluent/abc-123          -> ashby:           "confluent"
 jobs.smartrecruiters.com/swiggy/123456      -> smartrecruiters: "swiggy"
