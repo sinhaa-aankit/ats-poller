@@ -260,5 +260,28 @@ check('footer stripped without losing real content',
   dom('Payments and transactions at scale. We never ask for payment to apply.'),
   ['payment', 'transaction']);
 
+console.log('\n=== 18. SOLUTIONS ENGINEER / FDE SCOPE ===');
+// Solutions Engineer was a hard exclude until 23 Sep 2026. Integration-heavy
+// SE roles fit the resume; explicitly presales-titled roles still do not.
+const se = (t, l) => isRelevant({ title: t, location: l || 'Bengaluru',
+  content: 'Node.js API integration for enterprise customers' });
+[['Solutions Engineer', true], ['Senior Solutions Engineer, Payments', true],
+ ['Solutions Engineering - Integrations', true], ['Forward Deployed Engineer', true],
+ ['Senior Presales Engineer', false], ['Customer Engineer', false],
+ ['Solutions Engineering Manager', false],
+].forEach(([t, want]) => check(`se/fde title "${t}"`, se(t), want));
+check('solutions engineer outside India still rejected',
+  se('Solutions Engineer', 'New York, NY'), false);
+
+const del = (content) =>
+  score({ title: 'Solutions Engineer', content }).hits.delivery || [];
+check('delivery terms score',
+  del('Customer-facing role owning UAT, go-live and production support.'),
+  ['customer-facing', 'uat', 'go-live', 'production support']);
+check('bare "integration" is not a delivery hit',
+  del('Continuous integration pipelines'), []);
+check('plural: api integrations',
+  del('Build API integrations with partners'), ['api integration']);
+
 console.log(`\n${'='.repeat(50)}\n${pass} passed, ${fail} failed`);
 if (fail) { console.log('\nFAILURES:'); failures.forEach(f => console.log('  - ' + f)); process.exit(1); }

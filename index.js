@@ -627,6 +627,7 @@ function report({ all, relevant, scored, fresh, failures,
       lines.push(`- Experience asked: ${j.yearsNote}`);
       if (j.hits.strong) lines.push(`- Stack match: ${j.hits.strong.join(', ')}`);
       if (j.hits.domain) lines.push(`- Domain match: ${j.hits.domain.join(', ')}`);
+      if (j.hits.delivery) lines.push(`- Delivery match: ${j.hits.delivery.join(', ')}`);
       if (j.hits.penalty) lines.push(`- ⚠️  Stack risk: ${j.hits.penalty.join(', ')}`);
       lines.push(`- Apply: ${j.url}`);
       lines.push('');

@@ -31,7 +31,7 @@ node discover.js              # hunt for boards not in config.js, print them
 node discover.js --adopt      # ...and write them into config.js automatically
 node applied.js <apply-url>   # mark a role applied; it stops appearing
 node applied.js --list        # what you have applied to
-node test.js                  # 141 assertions, no network access
+node test.js                  # 152 assertions, no network access
 ```
 
 Or via npm scripts: `npm start`, `npm run all`, `npm run discover`, `npm test`.
@@ -41,8 +41,13 @@ four labelled phases (fetch, filter, score, diff). The report itself goes to
 stdout, so `node index.js > out.md` gives you a clean file while you still
 watch it run.
 
-Currently polls **158 boards** across four platforms — 80 Greenhouse, 18 Lever,
-40 Ashby, 20 SmartRecruiters.
+Currently polls **291 boards** across four platforms — 132 Greenhouse, 26 Lever,
+102 Ashby, 31 SmartRecruiters.
+
+Target roles are senior backend IC roles plus the customer-facing variants
+that fit an integrations background: **Forward Deployed Engineer** and
+**Solutions Engineer / Solutions Architect**. Titles that say presales or
+customer engineer outright stay excluded as quota-carrying sales roles.
 
 Each run fetches every board fresh, filters, scores, then diffs against
 `seen.json`. A role reported once is never reported as new again. The
@@ -245,7 +250,7 @@ task installed:
 node index.js
 ```
 
-Takes ~5 minutes across 185 boards, plus a discovery pass on the first run of
+Takes ~8 minutes across 291 boards, plus a discovery pass on the first run of
 each day. Add `--no-discover` for a quick ~3-minute poll.
 
 ## Scheduling (optional)
@@ -339,6 +344,9 @@ Everything lives in `config.js`.
 - `hardExcludes` — instant title rejects. Cheap and high-value. Add aggressively.
 - `scoring.strong` — tech you can demonstrate. Weight 12.
 - `scoring.adjacent` — real signal you have not demonstrated. Weight 6.
+- `scoring.delivery` — client-facing and integration work (UAT, go-live,
+  production support, API integrations). Weight 6. This is what lets FDE and
+  Solutions Engineer JDs, which name the stack less, clear the threshold.
 - `scoring.penalty` — terms meaning the role is built on a stack you do not
   have. These carry `-14` and will usually sink a job below threshold.
 - `minScore` — currently 20. Raise it if you get noise, lower it if too quiet.

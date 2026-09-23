@@ -148,6 +148,30 @@ module.exports = {
     { token: 'hightouch', name: 'Hightouch', verified: true },
     { token: 'sumologic', name: 'Sumo Logic', verified: true },
     { token: 'veracode', name: 'Veracode', verified: true },
+    // Adopted 23 Sep 2026 - FDE / Solutions Engineer sweep.
+    { token: 'cresta', name: 'Cresta', verified: true },  // 1 India backend
+    { token: 'snorkelai', name: 'Snorkel AI', verified: true },
+    { token: 'labelbox', name: 'Labelbox', verified: true },
+    { token: 'invisible', name: 'Invisible Technologies', verified: true },
+    { token: 'heygen', name: 'HeyGen', verified: true },
+    { token: 'vectara', name: 'Vectara', verified: true },
+    { token: 'intercom', name: 'Intercom', verified: true },
+    { token: 'polyai', name: 'PolyAI', verified: true },
+    { token: 'dataiku', name: 'Dataiku', verified: true },
+    { token: 'lithic', name: 'Lithic', verified: true },
+    { token: 'highnote', name: 'Highnote', verified: true },
+    { token: 'alloy', name: 'Alloy', verified: true },
+    { token: 'veriff', name: 'Veriff', verified: true },
+    { token: 'prismatic', name: 'Prismatic', verified: true },
+    { token: 'zuora', name: 'Zuora', verified: true },  // 4 India backend
+    { token: 'descope', name: 'Descope', verified: true },
+    { token: 'iterable', name: 'Iterable', verified: true },
+    { token: 'klaviyo', name: 'Klaviyo', verified: true },
+    { token: 'customerio', name: 'Customer.io', verified: true },
+    { token: 'attentive', name: 'Attentive', verified: true },
+    { token: 'atomicwork', name: 'Atomicwork', verified: true },  // 4 India backend
+    { token: 'nurix', name: 'Nurix AI', verified: true },
+    { token: 'truefoundry', name: 'TrueFoundry', verified: true },  // 3 India backend
   ],
 
   // The EU Greenhouse host does not exist. Kept as an empty array because
@@ -184,6 +208,9 @@ module.exports = {
     // Auto-adopted by discover.js on 2026-09-21. Names are placeholders.
     { token: 'sonarsource', name: 'SonarSource', verified: true },
     { token: 'metabase', name: 'Metabase', verified: true },
+    // Adopted 23 Sep 2026 - FDE / Solutions Engineer sweep.
+    { token: 'finch', name: 'Finch', verified: true },
+    { token: '100ms', name: '100ms', verified: true },  // 5 India backend
   ],
 
   ashby: [
@@ -250,6 +277,53 @@ module.exports = {
     { token: 'incident', name: 'incident.io', verified: true },
     { token: 'doppler', name: 'Doppler', verified: true },
     { token: 'infisical', name: 'Infisical', verified: true },
+    // Adopted 23 Sep 2026 - FDE / Solutions Engineer sweep.
+    { token: 'sierra', name: 'Sierra', verified: true },
+    { token: 'decagon', name: 'Decagon', verified: true },
+    { token: 'harvey', name: 'Harvey', verified: true },  // 1 India backend
+    { token: 'writer', name: 'Writer', verified: true },
+    { token: 'hex', name: 'Hex', verified: true },
+    { token: 'vanta', name: 'Vanta', verified: true },
+    { token: 'drata', name: 'Drata', verified: true },
+    { token: 'cognition', name: 'Cognition', verified: true },  // 1 India backend
+    { token: 'mercor', name: 'Mercor', verified: true },
+    { token: 'cursor', name: 'Cursor', verified: true },  // 2 India backend
+    { token: 'langchain', name: 'LangChain', verified: true },
+    { token: 'llamaindex', name: 'LlamaIndex', verified: true },
+    { token: 'vapi', name: 'Vapi', verified: true },
+    { token: 'cerebras', name: 'Cerebras', verified: true },  // 4 India backend
+    { token: 'unstructured', name: 'Unstructured', verified: true },
+    { token: 'abridge', name: 'Abridge', verified: true },
+    { token: 'tavus', name: 'Tavus', verified: true },
+    { token: 'synthesia', name: 'Synthesia', verified: true },
+    { token: 'braintrust', name: 'Braintrust', verified: true },
+    { token: 'patronus', name: 'Patronus AI', verified: true },
+    { token: 'poolside', name: 'Poolside', verified: true },
+    { token: 'parloa', name: 'Parloa', verified: true },
+    { token: 'lorikeet', name: 'Lorikeet', verified: true },
+    { token: 'rasa', name: 'Rasa', verified: true },
+    { token: 'hyperscience', name: 'Hyperscience', verified: true },
+    { token: 'rho', name: 'Rho', verified: true },
+    { token: 'unit', name: 'Unit', verified: true },
+    { token: 'column', name: 'Column', verified: true },
+    { token: 'persona', name: 'Persona', verified: true },
+    { token: 'sardine', name: 'Sardine', verified: true },
+    { token: 'socure', name: 'Socure', verified: true },  // 2 India backend
+    { token: 'middesk', name: 'Middesk', verified: true },
+    { token: 'codat', name: 'Codat', verified: true },
+    { token: 'merge', name: 'Merge', verified: true },
+    { token: 'rutter', name: 'Rutter', verified: true },
+    { token: 'nango', name: 'Nango', verified: true },
+    { token: 'paddle', name: 'Paddle', verified: true },
+    { token: 'stigg', name: 'Stigg', verified: true },
+    { token: 'workos', name: 'WorkOS', verified: true },
+    { token: 'clerk', name: 'Clerk', verified: true },
+    { token: 'knock', name: 'Knock', verified: true },
+    { token: 'signoz', name: 'SigNoz', verified: true },  // 4 India backend
+    { token: 'composio', name: 'Composio', verified: true },
+    { token: 'spotdraft', name: 'SpotDraft', verified: true },  // 1 India backend
+    { token: 'gigaml', name: 'Giga', verified: true },
+    { token: 'plane', name: 'Plane', verified: true },  // 4 India backend
   ],
 
   // ---------------------------------------------------------------------------
@@ -292,6 +366,10 @@ module.exports = {
     { token: 'facets', name: 'Facets', verified: true },
     { token: 'wayfair', name: 'Wayfair', verified: true },
     { token: 'unleash', name: 'Unleash', verified: true },
+    // Adopted 23 Sep 2026 - FDE / Solutions Engineer sweep.
+    { token: 'gong', name: 'Gong', verified: true },
+    { token: 'koreai', name: 'Kore.ai', verified: true },
+    { token: 'freecharge', name: 'Freecharge', verified: true },
   ],
 
   // ---------------------------------------------------------------------------
@@ -348,7 +426,11 @@ module.exports = {
     // Added 20 Aug 2026 - all of these cleared the threshold on day one.
     'engineer in test',                    // "SDE in Test III" scored 36
     'support engineer', 'presales', 'pre-sales',
-    'solutions engineer', 'solutions engineering',
+    // 'solutions engineer' / 'solutions engineering' removed 23 Sep 2026.
+    // Integration-heavy SE roles at API and payments companies match the
+    // resume (bank integrations, client-facing delivery, RCA), so they are
+    // in scope now. Titles that say presales or customer engineer outright
+    // stay excluded - those are the quota-carrying variants.
     'sap',
     // Added 21 Aug 2026 - PhonePe's firmware role cleared at 20 pts.
     'firmware',
@@ -404,6 +486,19 @@ module.exports = {
               // scored zero before. DocumentDB and Oracle are the databases
               // behind the 2.6M-record migration.
               'documentdb', 'oracle', 'batch processing', 'parallel processing'],
+    },
+    // Added 23 Sep 2026 for Solutions Engineer and FDE roles, whose JDs name
+    // the stack less and the customer work more. Every term is on the resume:
+    // requirements straight from the bank, UAT, releases, production support,
+    // integrations. Bare 'integration' is left out on purpose - it is in
+    // nearly every backend JD and would lift everything evenly.
+    delivery: {
+      weight: 6,
+      terms: ['customer-facing', 'client-facing', 'customer facing', 'client facing',
+              'enterprise customer', 'stakeholder', 'uat', 'go-live',
+              'production support', 'proof of concept', 'technical discovery',
+              'api integration', 'third-party integration', 'system integration',
+              'systems integration'],
     },
     bonus: {
       weight: 4,
