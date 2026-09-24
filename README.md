@@ -41,8 +41,8 @@ four labelled phases (fetch, filter, score, diff). The report itself goes to
 stdout, so `node index.js > out.md` gives you a clean file while you still
 watch it run.
 
-Currently polls **291 boards** across four platforms — 132 Greenhouse, 26 Lever,
-102 Ashby, 31 SmartRecruiters.
+Currently polls **420 boards** across four platforms — 200 Greenhouse, 39 Lever,
+145 Ashby, 36 SmartRecruiters.
 
 Target roles are senior backend IC roles plus the customer-facing variants
 that fit an integrations background: **Forward Deployed Engineer** and
@@ -226,7 +226,14 @@ convenient. Nothing else about them is guessed.
 
 Append guesses to `candidates.txt` freely; a wrong one costs a single 404.
 270 tokens → 81 live → 43 added, then 439 → 170 live → 77 added. The second
-sweep still hit 39%, so the list is far from exhausted — it now holds 531.
+sweep still hit 39%, so the list is far from exhausted. Later sweeps: 166 →
+80 live → 74 added (FDE / Solutions Engineer hirers), then 302 → 147 live →
+129 added. The list now holds ~1,140.
+
+A live board is not always the company you meant. Short tokens collide:
+`current`, `galileo`, `swan` and `glide` were all live but belonged to
+unrelated companies, and several SmartRecruiters tokens held only test
+postings. Look at a few titles before trusting an adoption.
 
 Three things to watch:
 
@@ -250,7 +257,7 @@ task installed:
 node index.js
 ```
 
-Takes ~8 minutes across 291 boards, plus a discovery pass on the first run of
+Takes ~12 minutes across 420 boards, plus a discovery pass on the first run of
 each day. Add `--no-discover` for a quick ~3-minute poll.
 
 ## Scheduling (optional)
