@@ -126,9 +126,9 @@ module.exports = {
     { token: 'contentful', name: 'Contentful', verified: true },
     { token: 'melio', name: 'Melio', verified: true },
     { token: 'algolia', name: 'Algolia', verified: true },
-    // Auto-adopted by discover.js on 2026-08-30. Names are placeholders.
+    // Adopted by discover.js on 2026-08-30.
     { token: 'streamnative', name: 'StreamNative', verified: true },
-    // Auto-adopted by discover.js on 2026-09-21. Names are placeholders.
+    // Adopted by discover.js on 2026-09-21.
     { token: 'clear', name: 'ClearTax', verified: true },
     { token: 'devrev', name: 'DevRev', verified: true },  // 5 India backend
     { token: 'cloudsek', name: 'CloudSEK', verified: true },
@@ -241,6 +241,35 @@ module.exports = {
     { token: 'greenhouse', name: 'Greenhouse', verified: true },
     { token: 'checkr', name: 'Checkr', verified: true },
     { token: 'five9', name: 'Five9', verified: true },  // 9 India backend
+    // Adopted 30 Sep 2026 - seventh sweep (294 tokens, 89 live).
+    { token: 'enterpret', name: 'Enterpret', verified: true },  // 1 India backend
+    { token: 'blueshift', name: 'Blueshift', verified: true },
+    { token: 'branchmetrics', name: 'Branch Metrics', verified: true },  // 1 India backend
+    { token: 'branch', name: 'Branch', verified: true },
+    { token: 'towerresearchcapital', name: 'Tower Research Capital', verified: true },
+    { token: 'imc', name: 'IMC Trading', verified: true },
+    { token: 'squarepointcapital', name: 'Squarepoint Capital', verified: true },  // 6 India backend
+    { token: 'jumptrading', name: 'Jump Trading', verified: true },
+    { token: 'akunacapital', name: 'Akuna Capital', verified: true },
+    { token: 'lucidsoftware', name: 'Lucid Software', verified: true },
+    { token: 'qualtrics', name: 'Qualtrics', verified: true },
+    { token: 'anaplan', name: 'Anaplan', verified: true },
+    { token: 'ebanx', name: 'EBANX', verified: true },
+    { token: 'akuity', name: 'Akuity', verified: true },
+    { token: 'kentik', name: 'Kentik', verified: true },
+    { token: 'pagerduty', name: 'PagerDuty', verified: true },
+    { token: 'solarwinds', name: 'SolarWinds', verified: true },  // 3 India backend
+    { token: 'canonical', name: 'Canonical', verified: true },
+    { token: 'tailscale', name: 'Tailscale', verified: true },
+    { token: 'coreweave', name: 'CoreWeave', verified: true },
+    { token: 'typeface', name: 'Typeface', verified: true },
+    { token: 'speechmatics', name: 'Speechmatics', verified: true },
+    { token: 'alphasense', name: 'AlphaSense', verified: true },  // 3 India backend
+    { token: 'mabl', name: 'mabl', verified: true },
+    { token: 'amperity', name: 'Amperity', verified: true },
+    { token: 'airship', name: 'Airship', verified: true },
+    { token: 'appsflyer', name: 'AppsFlyer', verified: true },
+    { token: 'yext', name: 'Yext', verified: true },
   ],
 
   // The EU Greenhouse host does not exist. Kept as an empty array because
@@ -274,7 +303,7 @@ module.exports = {
     { token: 'prismic', name: 'Prismic', verified: true },
     { token: 'zilliz', name: 'Zilliz', verified: true },
     { token: 'dlocal', name: 'dLocal', verified: true },
-    // Auto-adopted by discover.js on 2026-09-21. Names are placeholders.
+    // Adopted by discover.js on 2026-09-21.
     { token: 'sonarsource', name: 'SonarSource', verified: true },
     { token: 'metabase', name: 'Metabase', verified: true },
     // Adopted 23 Sep 2026 - FDE / Solutions Engineer sweep.
@@ -294,6 +323,16 @@ module.exports = {
     { token: 'contentsquare', name: 'Contentsquare', verified: true },
     { token: 'aircall', name: 'Aircall', verified: true },
     { token: 'levelai', name: 'Level AI', verified: true },  // 1 India backend
+    // Adopted 30 Sep 2026 - seventh sweep (294 tokens, 89 live).
+    { token: 'dozee', name: 'Dozee', verified: true },  // 1 India backend
+    { token: 'gushwork', name: 'Gushwork', verified: true },  // 3 India backend
+    { token: 'twingate', name: 'Twingate', verified: true },
+    { token: 'activecampaign', name: 'ActiveCampaign', verified: true },
+    { token: 'brevo', name: 'Brevo', verified: true },
+    { token: 'netomi', name: 'Netomi', verified: true },  // 2 India backend
+    { token: 'shieldai', name: 'Shield AI', verified: true },
+    { token: 'kochava', name: 'Kochava', verified: true },
+    { token: 'lucidworks', name: 'Lucidworks', verified: true },
   ],
 
   ashby: [
@@ -349,9 +388,9 @@ module.exports = {
     { token: 'pinecone', name: 'Pinecone', verified: true },
     { token: 'weaviate', name: 'Weaviate', verified: true },
     { token: 'nubank', name: 'Nubank', verified: true },
-    // Auto-adopted by discover.js on 2026-08-31. Names are placeholders.
+    // Adopted by discover.js on 2026-08-31.
     { token: 'expensify', name: 'Expensify', verified: true },
-    // Auto-adopted by discover.js on 2026-09-21. Names are placeholders.
+    // Adopted by discover.js on 2026-09-21.
     { token: 'bureau', name: 'Bureau', verified: true },  // 1 India backend
     { token: 'semgrep', name: 'Semgrep', verified: true },
     { token: 'camunda', name: 'Camunda', verified: true },
@@ -451,6 +490,50 @@ module.exports = {
     { token: 'uipath', name: 'UiPath', verified: true },  // 3 India backend
     { token: 'ashby', name: 'Ashby', verified: true },
     { token: 'beamery', name: 'Beamery', verified: true },
+    // Adopted 30 Sep 2026 - seventh sweep (294 tokens, 89 live).
+    { token: 'aspora', name: 'Aspora', verified: true },
+    { token: 'atlys', name: 'Atlys', verified: true },
+    { token: 'ema', name: 'Ema', verified: true },  // 6 India backend
+    { token: 'maximor', name: 'Maximor', verified: true },
+    { token: 'zania', name: 'Zania', verified: true },
+    { token: 'bolna', name: 'Bolna', verified: true },  // 1 India backend
+    { token: 'coderabbit', name: 'CodeRabbit', verified: true },
+    { token: 'lightspeedhq', name: 'Lightspeed Commerce', verified: true },
+    { token: 'checkly', name: 'Checkly', verified: true },
+    { token: 'docker', name: 'Docker', verified: true },
+    { token: 'goteleport', name: 'Teleport', verified: true },
+    { token: 'netbird', name: 'NetBird', verified: true },
+    { token: 'depot', name: 'Depot', verified: true },
+    { token: 'readme', name: 'ReadMe', verified: true },
+    { token: 'mintlify', name: 'Mintlify', verified: true },
+    { token: 'speakeasy', name: 'Speakeasy', verified: true },
+    { token: 'svix', name: 'Svix', verified: true },
+    { token: 'resend', name: 'Resend', verified: true },
+    { token: 'lambda', name: 'Lambda', verified: true },  // 1 India backend
+    { token: 'crusoe', name: 'Crusoe', verified: true },
+    { token: 'exa', name: 'Exa', verified: true },
+    { token: 'tavily', name: 'Tavily', verified: true },
+    { token: 'browserbase', name: 'Browserbase', verified: true },
+    { token: 'firecrawl', name: 'Firecrawl', verified: true },
+    { token: 'relevanceai', name: 'Relevance AI', verified: true },
+    { token: 'letta', name: 'Letta', verified: true },
+    { token: 'mem0', name: 'Mem0', verified: true },
+    { token: 'arcade', name: 'Arcade', verified: true },
+    { token: 'dust', name: 'Dust', verified: true },
+    { token: 'gamma', name: 'Gamma', verified: true },
+    { token: 'zowie', name: 'Zowie', verified: true },
+    { token: 'replicant', name: 'Replicant', verified: true },
+    { token: 'rev', name: 'Rev', verified: true },
+    { token: 'cartesia', name: 'Cartesia', verified: true },  // 1 India backend
+    { token: 'bland', name: 'Bland AI', verified: true },
+    { token: 'saronic', name: 'Saronic', verified: true },
+    { token: 'distyl', name: 'Distyl AI', verified: true },
+    { token: 'rogo', name: 'Rogo', verified: true },
+    { token: 'factory', name: 'Factory', verified: true },
+    { token: 'greptile', name: 'Greptile', verified: true },
+    { token: 'simondata', name: 'Simon Data', verified: true },
+    { token: 'singular', name: 'Singular', verified: true },
+    { token: 'momentic', name: 'Momentic', verified: true },
   ],
 
   // ---------------------------------------------------------------------------
@@ -488,7 +571,7 @@ module.exports = {
     { token: 'vegrow', name: 'Vegrow', verified: true },
     { token: 'captainfresh', name: 'Captain Fresh', verified: true },  // 1 India backend
     { token: 'canva', name: 'Canva', verified: true },
-    // Auto-adopted by discover.js on 2026-09-21. Names are placeholders.
+    // Adopted by discover.js on 2026-09-21.
     { token: 'kodo', name: 'Kodo', verified: true },
     { token: 'facets', name: 'Facets', verified: true },
     { token: 'wayfair', name: 'Wayfair', verified: true },
@@ -503,6 +586,10 @@ module.exports = {
     { token: 'grab', name: 'Grab', verified: true },
     { token: 'tembo', name: 'Tembo', verified: true },
     { token: 'hibob', name: 'HiBob', verified: true },
+    // Adopted 30 Sep 2026 - seventh sweep (294 tokens, 89 live).
+    { token: 'gripinvest', name: 'Grip Invest', verified: true },
+    { token: 'zinghr', name: 'ZingHR', verified: true },
+    { token: 'mirantis', name: 'Mirantis', verified: true },  // 1 India backend
   ],
 
   // ---------------------------------------------------------------------------
