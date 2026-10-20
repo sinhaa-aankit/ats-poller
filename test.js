@@ -283,5 +283,17 @@ check('bare "integration" is not a delivery hit',
 check('plural: api integrations',
   del('Build API integrations with partners'), ['api integration']);
 
+console.log('\n=== 19. FETCH QUEUE INTERLEAVING ===');
+// Fetching is concurrent now. Without round-robin the first ~200 tasks are
+// all Greenhouse, and every worker would hit the same API at once.
+const { interleave } = require('./index');
+const tk = (k) => ({ key: k });
+const order = interleave([tk('greenhouse:a'), tk('greenhouse:b'), tk('greenhouse:c'),
+  tk('lever:d'), tk('ashby:e'), tk('ashby:f')]).map((t) => t.key);
+check('platforms alternate',
+  order, ['greenhouse:a', 'lever:d', 'ashby:e', 'greenhouse:b', 'ashby:f', 'greenhouse:c']);
+check('nothing dropped or duplicated', order.length, 6);
+check('empty input', interleave([]), []);
+
 console.log(`\n${'='.repeat(50)}\n${pass} passed, ${fail} failed`);
 if (fail) { console.log('\nFAILURES:'); failures.forEach(f => console.log('  - ' + f)); process.exit(1); }

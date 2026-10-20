@@ -29,9 +29,10 @@ node index.js --discover-now  # force a board-discovery pass first
 node index.js --no-discover   # skip discovery even if it is due
 node discover.js              # hunt for boards not in config.js, print them
 node discover.js --adopt      # ...and write them into config.js automatically
+node discover.js --check      # is every configured board still live? (~30s)
 node applied.js <apply-url>   # mark a role applied; it stops appearing
 node applied.js --list        # what you have applied to
-node test.js                  # 152 assertions, no network access
+node test.js                  # 155 assertions, no network access
 ```
 
 Or via npm scripts: `npm start`, `npm run all`, `npm run discover`, `npm test`.
@@ -206,13 +207,14 @@ and score for only the boards that came back alive — ending in paste-ready
 
 `index.js` tracks when discovery last ran (`.discover-state.json`, gitignored)
 and triggers it with `--adopt` once it is older than `discoverEveryDays` in
-`config.js` — 5 days by default. Boards adopted mid-run are polled in that
-same run, so nothing waits for tomorrow.
+`config.js` — currently 1, so the first run each day. Boards adopted mid-run
+are polled in that same run, so nothing waits for tomorrow.
 
-It is deliberately **not** run on every poll:
+Daily is affordable only because of dead-token resting: a token that 404d is
+re-probed once every `deadRetryDays` (7), staggered by a hash so the retries
+spread evenly, and tokens already in `config.js` are never probed. Without
+that a sweep is ~4,500 requests against ~1,140 candidates. Even so:
 
-- discovery is ~1,800 requests against the poll's 158, turning a 3-minute run
-  into 10
 - it finds nothing on almost every day. New boards appear only when a company
   newly adopts one of the four platforms, or when `candidates.txt` grows —
   probing the same unchanged tokens daily is 12× the load on free public APIs
@@ -258,8 +260,27 @@ task installed:
 node index.js
 ```
 
-Takes ~15 minutes across 503 boards, plus a discovery pass on the first run of
-each day. Add `--no-discover` for a quick ~3-minute poll.
+Takes ~2.5 minutes across 500 boards, fetched six at a time and interleaved
+across the four platforms so no single API sees more than one or two requests
+at once. The first run each day adds a discovery pass; `--no-discover` skips it.
+
+### Checking board health on demand
+
+```bash
+node discover.js --check
+```
+
+Probes every configured board in ~30 seconds rather than waiting for three
+failed polls. Each dead one is labelled:
+
+- `empty` — the board exists with nothing open today. Leave it.
+- `GONE` — 404. If the same token is live on another platform the company has
+  migrated, and the check says where. Otherwise comment it out with a note.
+
+The first run on 20 Oct 2026 found five migrations (Amplitude back to Ashby,
+Hightouch, Iterable, Webflow, Thoughtworks) and three boards gone outright
+(Remote, Atomicwork, Maximor) that the poll would have flagged only after
+three more runs.
 
 ## Scheduling (optional)
 
@@ -330,15 +351,17 @@ Whichever you use, check `poll.log` after the first night. A run that logs
 
 ## Notifications
 
-To only look when something actually opened, add to the end of `report()`:
+To only look when something actually opened, add to the end of `report()`.
+`report()` is synchronous, so this is fire-and-forget rather than `await` —
+Node still waits for the request before exiting:
 
 ```js
 if (fresh.length && process.env.TG_TOKEN) {
-  await fetch(`https://api.telegram.org/bot${process.env.TG_TOKEN}/sendMessage`, {
+  fetch(`https://api.telegram.org/bot${process.env.TG_TOKEN}/sendMessage`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ chat_id: process.env.TG_CHAT, text: out.slice(0, 4000) }),
-  });
+  }).catch((e) => console.error('telegram:', e.message));
 }
 ```
 

@@ -18,8 +18,6 @@ module.exports = {
     // first company in this file and supplied 8 of the 23 seeded roles, so
     // check postman.com/company/careers by hand.
     // { token: 'postman', name: 'Postman', verified: false },
-    // Migrated off Ashby to Greenhouse, found 22 Sep 2026.
-    { token: 'amplitude', name: 'Amplitude', verified: true },
     { token: 'razorpaysoftwareprivatelimited', name: 'Razorpay', verified: true },
     { token: 'twilio', name: 'Twilio', verified: true },
     // Groww is NOT on an EU instance - boards-api.eu.greenhouse.io does not
@@ -71,7 +69,7 @@ module.exports = {
     { token: 'payoneer', name: 'Payoneer', verified: true },
     { token: 'monzo', name: 'Monzo', verified: true },
     { token: 'gusto', name: 'Gusto', verified: true },
-    { token: 'remotecom', name: 'Remote', verified: true },
+    // { token: 'remotecom', name: 'Remote', verified: false }, // 404 everywhere 20 Oct 2026 - check careers page by hand
     { token: 'jetbrains', name: 'JetBrains', verified: true },
     { token: 'vercel', name: 'Vercel', verified: true },
     { token: 'netlify', name: 'Netlify', verified: true },
@@ -120,7 +118,6 @@ module.exports = {
     { token: 'smartsheet', name: 'Smartsheet', verified: true },  // 5 India backend
     { token: 'typeform', name: 'Typeform', verified: true },
     { token: 'calendly', name: 'Calendly', verified: true },
-    { token: 'webflow', name: 'Webflow', verified: true },
     { token: 'wrike', name: 'Wrike', verified: true },
     { token: 'storyblok', name: 'Storyblok', verified: true },
     { token: 'contentful', name: 'Contentful', verified: true },
@@ -145,7 +142,6 @@ module.exports = {
     { token: 'beyondtrust', name: 'BeyondTrust', verified: true },
     { token: 'jfrog', name: 'JFrog', verified: true },
     { token: 'make', name: 'Make', verified: true },
-    { token: 'hightouch', name: 'Hightouch', verified: true },
     { token: 'sumologic', name: 'Sumo Logic', verified: true },
     { token: 'veracode', name: 'Veracode', verified: true },
     // Adopted 23 Sep 2026 - FDE / Solutions Engineer sweep.
@@ -165,11 +161,10 @@ module.exports = {
     { token: 'prismatic', name: 'Prismatic', verified: true },
     { token: 'zuora', name: 'Zuora', verified: true },  // 4 India backend
     { token: 'descope', name: 'Descope', verified: true },
-    { token: 'iterable', name: 'Iterable', verified: true },
     { token: 'klaviyo', name: 'Klaviyo', verified: true },
     { token: 'customerio', name: 'Customer.io', verified: true },
     { token: 'attentive', name: 'Attentive', verified: true },
-    { token: 'atomicwork', name: 'Atomicwork', verified: true },  // 4 India backend
+    // { token: 'atomicwork', name: 'Atomicwork', verified: false }, // 404 everywhere 20 Oct 2026 - check careers page by hand
     { token: 'nurix', name: 'Nurix AI', verified: true },
     { token: 'truefoundry', name: 'TrueFoundry', verified: true },  // 3 India backend
     // Adopted 24 Sep 2026 - sixth sweep (302 tokens, 147 live).
@@ -270,6 +265,8 @@ module.exports = {
     { token: 'airship', name: 'Airship', verified: true },
     { token: 'appsflyer', name: 'AppsFlyer', verified: true },
     { token: 'yext', name: 'Yext', verified: true },
+    // Migrated here from another platform, found by discover.js --check on 20 Oct 2026.
+    { token: 'thoughtworks', name: 'Thoughtworks', verified: true },
   ],
 
   // The EU Greenhouse host does not exist. Kept as an empty array because
@@ -447,7 +444,6 @@ module.exports = {
     { token: 'gigaml', name: 'Giga', verified: true },
     { token: 'plane', name: 'Plane', verified: true },  // 4 India backend
     // Adopted 24 Sep 2026 - sixth sweep (302 tokens, 147 live).
-    { token: 'thoughtworks', name: 'Thoughtworks', verified: true },  // 2 India backend
     { token: 'thumbtack', name: 'Thumbtack', verified: true },
     { token: 'andela', name: 'Andela', verified: true },
     { token: 'dave', name: 'Dave', verified: true },
@@ -494,7 +490,7 @@ module.exports = {
     { token: 'aspora', name: 'Aspora', verified: true },
     { token: 'atlys', name: 'Atlys', verified: true },
     { token: 'ema', name: 'Ema', verified: true },  // 6 India backend
-    { token: 'maximor', name: 'Maximor', verified: true },
+    // { token: 'maximor', name: 'Maximor', verified: false }, // 404 everywhere 20 Oct 2026 - check careers page by hand
     { token: 'zania', name: 'Zania', verified: true },
     { token: 'bolna', name: 'Bolna', verified: true },  // 1 India backend
     { token: 'coderabbit', name: 'CodeRabbit', verified: true },
@@ -534,6 +530,11 @@ module.exports = {
     { token: 'simondata', name: 'Simon Data', verified: true },
     { token: 'singular', name: 'Singular', verified: true },
     { token: 'momentic', name: 'Momentic', verified: true },
+    // Migrated here from another platform, found by discover.js --check on 20 Oct 2026.
+    { token: 'amplitude', name: 'Amplitude', verified: true },
+    { token: 'hightouch', name: 'Hightouch', verified: true },
+    { token: 'iterable', name: 'Iterable', verified: true },
+    { token: 'webflow', name: 'Webflow', verified: true },
   ],
 
   // ---------------------------------------------------------------------------
@@ -740,7 +741,7 @@ module.exports = {
   },
 
   // How often index.js runs board discovery and adopts what it finds.
-  // Not every run: discovery is ~1,800 requests and finds nothing unless a
+  // Not every run: discovery is thousands of requests and finds nothing unless a
   // company newly adopts one of the four ATS platforms or candidates.txt
   // grows. Override per-run with --discover-now or --no-discover.
   discoverEveryDays: 1,

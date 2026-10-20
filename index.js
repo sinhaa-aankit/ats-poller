@@ -388,11 +388,11 @@ function progress(msg) {
 
 const DISCOVER_STATE = path.join(__dirname, '.discover-state.json');
 
-// Board discovery costs ~1,800 requests and almost always finds nothing: new
+// Board discovery costs thousands of requests and almost always finds nothing: new
 // boards appear only when a company adopts one of the four ATS platforms, or
 // when candidates.txt grows. Running it on every poll would be 12x the load on
 // free public APIs for near-zero yield, so it runs on a timer instead -
-// automatic, but paid monthly rather than daily.
+// automatic, but at most once per discoverEveryDays.
 //
 //   --discover-now   run it this time regardless of when it last ran
 //   --no-discover    skip it even if due
@@ -438,6 +438,26 @@ async function maybeDiscover() {
   return adopted;
 }
 
+const FETCH_CONCURRENCY = 6;
+
+// Round-robin across platforms: [gh, gh, gh, lever, ashby] becomes
+// [gh, lever, ashby, gh, gh]. Without this the first ~200 tasks are all
+// Greenhouse and every worker hits the same API at once.
+function interleave(tasks) {
+  const byPlatform = new Map();
+  for (const t of tasks) {
+    const p = t.key.split(':')[0];
+    if (!byPlatform.has(p)) byPlatform.set(p, []);
+    byPlatform.get(p).push(t);
+  }
+  const lanes = [...byPlatform.values()];
+  const out = [];
+  for (let i = 0; out.length < tasks.length; i += 1) {
+    for (const lane of lanes) if (i < lane.length) out.push(lane[i]);
+  }
+  return out;
+}
+
 // Boards adopted moments ago are only in the config on disk, not the one this
 // process required at startup.
 function reloadConfig() {
@@ -474,43 +494,52 @@ async function run() {
   // to read a log line.
   const health = loadHealth();
 
-  progress(`[1/4] Fetching ${tasks.length} boards...`);
+  progress(`[1/4] Fetching ${tasks.length} boards, ${FETCH_CONCURRENCY} at a time...`);
 
-  // Sequential with a small delay - we are polling ~79 endpoints, not racing.
+  // A few boards in flight at once. Fully sequential was fine at 79 boards
+  // and took ~15 minutes at 500. The queue is interleaved across platforms,
+  // so six workers mean roughly one or two requests per API at a time, each
+  // followed by the same small delay as before - still polite.
   // One retry, and the board is named in the failure: a single transient
   // "fetch failed" used to drop a whole company out of the report silently,
   // and the message gave no way to tell which one.
+  const queue = interleave(tasks);
   let n = 0;
-  for (const task of tasks) {
-    n += 1;
-    const tag = `  ${String(n).padStart(2)}/${tasks.length}`;
-    let lastErr = null;
-    let got = 0;
-    for (let attempt = 0; attempt < 2; attempt++) {
-      try {
-        const jobs = await task.run();
-        all.push(...jobs);
-        got = jobs.length;
-        lastErr = null;
-        break;
-      } catch (err) {
-        lastErr = err;
-        if (attempt === 0) {
-          progress(`${tag}  ${task.label} - ${err.message}, retrying`);
-          await new Promise((r) => setTimeout(r, 1500));
+  await Promise.all(Array.from({ length: FETCH_CONCURRENCY }, async () => {
+    while (queue.length) {
+      const task = queue.shift();
+      n += 1;
+      const tag = `  ${String(n).padStart(3)}/${tasks.length}`;
+      let lastErr = null;
+      let got = 0;
+      for (let attempt = 0; attempt < 2; attempt++) {
+        try {
+          const jobs = await task.run();
+          all.push(...jobs);
+          got = jobs.length;
+          lastErr = null;
+          break;
+        } catch (err) {
+          lastErr = err;
+          if (attempt === 0) {
+            progress(`${tag}  ${task.label} - ${err.message}, retrying`);
+            await new Promise((r) => setTimeout(r, 1500));
+          }
         }
       }
+      if (lastErr) {
+        progress(`${tag}  ${task.label} - FAILED (${lastErr.message})`);
+        failures.push(`${task.label}: ${lastErr.message}`);
+        health[task.key] = (health[task.key] || 0) + 1;
+      } else {
+        progress(`${tag}  ${task.label} - ${got} jobs`);
+        delete health[task.key];
+      }
+      await new Promise((r) => setTimeout(r, 250));
     }
-    if (lastErr) {
-      progress(`${tag}  ${task.label} - FAILED (${lastErr.message})`);
-      failures.push(`${task.label}: ${lastErr.message}`);
-      health[task.key] = (health[task.key] || 0) + 1;
-    } else {
-      progress(`${tag}  ${task.label} - ${got} jobs`);
-      delete health[task.key];
-    }
-    await new Promise((r) => setTimeout(r, 250));
-  }
+  }));
+  // Completion order is no longer deterministic; keep the report stable.
+  failures.sort();
 
   // Forget boards that are no longer polled. Without this, disabling a dead
   // token in config.js leaves its counter behind and the warning nags about a
@@ -668,7 +697,8 @@ function report({ all, relevant, scored, fresh, failures,
 // ./discover, which requires ./index straight back for isRelevant and score.
 // With the assignment below the run() call, that circular require resolved to
 // an empty object and discovery silently scored nothing.
-module.exports = { isRelevant, score, extractMinYears, relativeAge, isStale };
+module.exports = { isRelevant, score, extractMinYears, relativeAge, isStale,
+  hasAny, interleave };
 
 if (require.main === module) {
   run().catch((e) => {

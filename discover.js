@@ -26,7 +26,7 @@
 const fs = require('fs');
 const path = require('path');
 const config = require('./config');
-const { isRelevant, score } = require('./index');
+const { isRelevant, score, hasAny } = require('./index');
 
 const CANDIDATE_FILE = path.join(__dirname, 'candidates.txt');
 const CONCURRENCY = 8;
@@ -81,7 +81,8 @@ const ATS = {
     fetchAll: async (t) => {
       const list = await getJSON(
         'https://api.smartrecruiters.com/v1/companies/' + t + '/postings?limit=100');
-      const titleRe = new RegExp(config.roleKeywords.join('|'), 'i');
+      // Same whole-word matcher the poller uses. A raw join('|') regex was
+      // substring matching, so 'sde' and 'fde' fired inside unrelated words.
       const keep = (list.content || [])
         .map((p) => ({
           id: p.id,
@@ -89,7 +90,7 @@ const ATS = {
           location: srLocation(p.location),
           content: '',
         }))
-        .filter((r) => titleRe.test(r.title));
+        .filter((r) => hasAny(r.title, config.roleKeywords));
       for (const r of keep) {
         try {
           const d = await getJSON(
@@ -390,8 +391,56 @@ async function discover(opts = {}) {
   return { live: live.length, fresh: fresh.length, adopted: 0 };
 }
 
-module.exports = { discover };
+// Liveness check for every board already in config.js, without waiting for
+// three failed polls to trip the board-health warning. A dead board is also
+// probed on the other three platforms, because the usual cause is a
+// migration - ClickHouse and Amplitude both moved and kept their token.
+//
+//   node discover.js --check
+async function checkConfig() {
+  const boards = [];
+  Object.keys(ATS).forEach((ats) => (config[ats] || [])
+    .forEach((b) => boards.push({ ats, token: b.token, name: b.name })));
+  console.log('Checking ' + boards.length + ' configured boards, '
+    + CONCURRENCY + ' at a time...\n');
+
+  const probe = async (ats, token) => {
+    try { return ATS[ats].count(await getJSON(ATS[ats].probe(token))); } catch (e) { return -1; }
+  };
+  const dead = [];
+  await pool(boards, CONCURRENCY, async (b) => {
+    const own = await probe(b.ats, b.token);
+    if (own > 0) return;
+    // 0 = the board answered with no jobs (it exists); -1 = 404 or error.
+    b.status = own === 0 ? 'empty' : 'GONE ';
+    const elsewhere = [];
+    for (const other of Object.keys(ATS)) {
+      if (other === b.ats) continue;
+      const n = await probe(other, b.token);
+      if (n > 0) elsewhere.push(other + ' (' + n + ' jobs)');
+    }
+    dead.push(Object.assign(b, { elsewhere }));
+  });
+
+  if (!dead.length) {
+    console.log('All ' + boards.length + ' boards are live.');
+    return { dead: [] };
+  }
+  console.log(dead.length + ' board(s) dead or empty:\n');
+  dead.sort((a, b) => (a.ats + a.token).localeCompare(b.ats + b.token)).forEach((b) => {
+    console.log('  ' + b.status + '  ' + (b.ats + ':' + b.token).padEnd(36) + b.name.padEnd(24)
+      + (b.elsewhere.length ? 'MOVED? live on ' + b.elsewhere.join(', ') : 'not found elsewhere'));
+  });
+  console.log('\nempty  the board exists with nothing open today - leave it, it costs nothing.');
+  console.log('GONE   404 on its platform. Live elsewhere means a migration - repoint it.');
+  console.log('       Not found anywhere means comment it out and check the careers page.');
+  console.log('       (SmartRecruiters answers empty, never 404, for a company it lacks.)');
+  return { dead };
+}
+
+module.exports = { discover, checkConfig };
 
 if (require.main === module) {
-  discover().catch((e) => { console.error('Fatal:', e); process.exit(1); });
+  const main = process.argv.includes('--check') ? checkConfig : discover;
+  main().catch((e) => { console.error('Fatal:', e); process.exit(1); });
 }
