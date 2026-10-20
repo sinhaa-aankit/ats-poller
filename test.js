@@ -295,5 +295,20 @@ check('platforms alternate',
 check('nothing dropped or duplicated', order.length, 6);
 check('empty input', interleave([]), []);
 
+console.log('\n=== 20. TEST AND UI TITLE SPELLINGS ===');
+// All of these reached a real report on 20 Oct 2026, several above 40 pts.
+const t20 = (t) => isRelevant({ title: t, location: 'Bengaluru',
+  content: 'Node.js MongoDB payment' });
+['Senior Engineer, QE', 'Senior Software Engineer, Quality Engineering',
+ 'Quality Automation Engineer II',
+ 'Senior QA Test Automation Engineer (Java, Selenium WebDriver, and TestNG/JUnit)',
+ 'UX Engineer', 'Angular Developer', 'Senior UI Engineer',
+ 'Senior Developer – Dynamics 365 CRM & Power Platform (Canvas Apps)',
+].forEach((t) => check(`test/ui title excluded: "${t}"`, t20(t), false));
+// Whole-word matching keeps these from catching real backend titles.
+['Senior Database Developer (MongoDB)', 'Backend Engineer, Quantitative Platform',
+ 'Software Engineer - Model API Platform', 'Senior Backend Engineer, Quality of Service',
+].forEach((t) => check(`backend title kept: "${t}"`, t20(t), true));
+
 console.log(`\n${'='.repeat(50)}\n${pass} passed, ${fail} failed`);
 if (fail) { console.log('\nFAILURES:'); failures.forEach(f => console.log('  - ' + f)); process.exit(1); }

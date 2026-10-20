@@ -32,7 +32,7 @@ node discover.js --adopt      # ...and write them into config.js automatically
 node discover.js --check      # is every configured board still live? (~30s)
 node applied.js <apply-url>   # mark a role applied; it stops appearing
 node applied.js --list        # what you have applied to
-node test.js                  # 155 assertions, no network access
+node test.js                  # 167 assertions, no network access
 ```
 
 Or via npm scripts: `npm start`, `npm run all`, `npm run discover`, `npm test`.
@@ -42,8 +42,8 @@ four labelled phases (fetch, filter, score, diff). The report itself goes to
 stdout, so `node index.js > out.md` gives you a clean file while you still
 watch it run.
 
-Currently polls **503 boards** across four platforms — 228 Greenhouse, 48 Lever,
-188 Ashby, 39 SmartRecruiters.
+Currently polls **523 boards** across four platforms — 228 Greenhouse, 49 Lever,
+200 Ashby, 46 SmartRecruiters.
 
 Target roles are senior backend IC roles plus the customer-facing variants
 that fit an integrations background: **Forward Deployed Engineer** and
@@ -230,11 +230,14 @@ Append guesses to `candidates.txt` freely; a wrong one costs a single 404.
 270 tokens → 81 live → 43 added, then 439 → 170 live → 77 added. The second
 sweep still hit 39%, so the list is far from exhausted. Later sweeps: 166 →
 80 live → 74 added (FDE / Solutions Engineer hirers), then 302 → 147 live →
-129 added, then 294 → 89 live → 83 added. The list now holds ~1,440.
+129 added, then 294 → 89 live → 83 added, then 154 → 30 live → 23 added.
+The list now holds ~1,600, and the hit rate is falling (49% → 30% → 19%):
+the obvious tokens are taken.
 
 A live board is not always the company you meant. Short tokens collide:
 `current`, `galileo`, `swan`, `glide`, `ultimate` (an HVAC firm) and
-`momentic` (a pilates studio) were all live but belonged to
+`momentic` (a pilates studio), `pronto` (mining haulage) and `superset` (a
+founders' community) were all live but belonged to
 unrelated companies, and several SmartRecruiters tokens held only test
 postings. Look at a few titles before trusting an adoption.
 
@@ -250,6 +253,10 @@ Three things to watch:
   until it turned up on SmartRecruiters.
 - SmartRecruiters answers **200 with an empty list** for a company that does
   not exist, so HTTP status is not a liveness test there — `totalFound > 0` is.
+- SmartRecruiters boards are fetched with `country=in` and paged. A single
+  `limit=100` request used to cap every board at 100 postings — Swiggy has
+  192 in India and ServiceNow 71 among 673 worldwide — and that cap is what
+  makes enterprise boards like Bosch (4,975 postings, 625 in India) usable.
 
 ## Running it
 
@@ -260,7 +267,7 @@ task installed:
 node index.js
 ```
 
-Takes ~2.5 minutes across 500 boards, fetched six at a time and interleaved
+Takes ~3 minutes across 523 boards, fetched six at a time and interleaved
 across the four platforms so no single API sees more than one or two requests
 at once. The first run each day adds a discovery pass; `--no-discover` skips it.
 

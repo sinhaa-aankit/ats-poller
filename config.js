@@ -267,6 +267,12 @@ module.exports = {
     { token: 'yext', name: 'Yext', verified: true },
     // Migrated here from another platform, found by discover.js --check on 20 Oct 2026.
     { token: 'thoughtworks', name: 'Thoughtworks', verified: true },
+    // Adopted 20 Oct 2026 - eighth sweep (154 tokens, 30 live).
+    { token: 'abinbev', name: 'AB InBev', verified: true },
+    { token: 'commvault', name: 'Commvault', verified: true },  // 4 India backend
+    { token: 'karya', name: 'Karya', verified: true },  // 2 India backend
+    { token: 'pubnub', name: 'PubNub', verified: true },
+    { token: 'pingcap', name: 'PingCAP (TiDB)', verified: true },
   ],
 
   // The EU Greenhouse host does not exist. Kept as an empty array because
@@ -330,6 +336,8 @@ module.exports = {
     { token: 'shieldai', name: 'Shield AI', verified: true },
     { token: 'kochava', name: 'Kochava', verified: true },
     { token: 'lucidworks', name: 'Lucidworks', verified: true },
+    // Adopted 20 Oct 2026 - eighth sweep (154 tokens, 30 live).
+    { token: 'cloudinary', name: 'Cloudinary', verified: true },
   ],
 
   ashby: [
@@ -535,6 +543,17 @@ module.exports = {
     { token: 'hightouch', name: 'Hightouch', verified: true },
     { token: 'iterable', name: 'Iterable', verified: true },
     { token: 'webflow', name: 'Webflow', verified: true },
+    // Adopted 20 Oct 2026 - eighth sweep (154 tokens, 30 live).
+    { token: 'scribe', name: 'Scribe', verified: true },
+    { token: 'attio', name: 'Attio', verified: true },
+    { token: 'unify', name: 'Unify', verified: true },
+    { token: 'plain', name: 'Plain', verified: true },
+    { token: 'tapcheck', name: 'Tapcheck', verified: true },
+    { token: 'oyster', name: 'Oyster HR', verified: true },
+    { token: 'bunny', name: 'Bunny', verified: true },
+    { token: 'mux', name: 'Mux', verified: true },
+    { token: 'lancedb', name: 'LanceDB', verified: true },
+    { token: 'turbopuffer', name: 'turbopuffer', verified: true },
   ],
 
   // ---------------------------------------------------------------------------
@@ -591,6 +610,14 @@ module.exports = {
     { token: 'gripinvest', name: 'Grip Invest', verified: true },
     { token: 'zinghr', name: 'ZingHR', verified: true },
     { token: 'mirantis', name: 'Mirantis', verified: true },  // 1 India backend
+    // Adopted 20 Oct 2026 - eighth sweep (154 tokens, 30 live).
+    { token: 'boschgroup', name: 'Bosch', verified: true },  // 3 India backend
+    { token: 'nielseniq', name: 'NielsenIQ', verified: true },
+    { token: 'experian', name: 'Experian', verified: true },
+    { token: 'westerndigital', name: 'Western Digital', verified: true },
+    { token: 'continental', name: 'Continental', verified: true },  // 1 India backend
+    { token: 'eurofins', name: 'Eurofins', verified: true },  // 1 India backend
+    { token: 'deliveryhero', name: 'Delivery Hero', verified: true },
   ],
 
   // ---------------------------------------------------------------------------
@@ -662,6 +689,13 @@ module.exports = {
     // product engineering. 'salesforce' catches the CRM-developer roles that
     // score on 'javascript' and nothing else.
     'network engineer', 'security engineer', 'salesforce',
+    // Added 20 Oct 2026 - spellings of test and UI roles the phrases above
+    // miss. "Senior Engineer, QE" scored 45 and "Senior Software Engineer,
+    // Quality Engineering" 50. Bare 'qa' / 'qe' are safe as whole words in a
+    // title. 'dynamics 365' is the Microsoft CRM twin of 'salesforce'.
+    'qa', 'qe', 'quality engineer', 'quality engineering', 'quality automation',
+    'test automation', 'ui engineer', 'ui developer', 'ux engineer', 'angular',
+    'dynamics 365',
   ],
 
   // ---------------------------------------------------------------------------

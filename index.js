@@ -74,17 +74,36 @@ async function fetchAshby({ token, name }) {
 
 // SmartRecruiters splits its data: the postings list carries title and
 // location but no description, which needs one extra request per posting. So
-// filter on title first and fetch detail only for survivors - that keeps a
-// 200-posting board down to a handful of calls.
+// filter first and fetch detail only for survivors.
 //
-// Pre-filtering deliberately uses roleKeywords ONLY, not hardExcludes. The
-// full exclude logic in isRelevant has a Senior/Staff carve-out, and
-// duplicating it here would risk the two drifting apart.
-async function fetchSmartRecruiters({ token, name }) {
-  const list = await getJSON(
-    `https://api.smartrecruiters.com/v1/companies/${token}/postings?limit=100`);
+// The pre-filter is isRelevant itself, not a copy of its rules, so the two
+// cannot drift apart. Running it before the description exists is exact
+// here: the list is India-only, every location matches 'india', and
+// isRelevant only reads the JD body for locations that match nothing. It
+// keeps Bosch India (625 postings) to a few dozen detail calls.
+// India postings only, every page. This used to be one unfiltered ?limit=100
+// request, which silently capped every board at 100 postings: Swiggy has 192
+// in India and ServiceNow 71 among 673 worldwide, so most of both went unseen,
+// and Bosch (4,975 worldwide) would have yielded 100 arbitrary ones. The
+// server-side country filter keeps the paging cheap - Bosch India is 7 pages.
+// The cost: a SmartRecruiters posting located outside India cannot get in via
+// the JD-body fallback in isRelevant. Remote-India roles are coded as India.
+async function fetchSmartRecruitersList(token) {
+  const out = [];
+  for (let offset = 0; offset < 2000; offset += 100) {
+    const page = await getJSON(`https://api.smartrecruiters.com/v1/companies/${token}`
+      + `/postings?country=in&limit=100&offset=${offset}`);
+    const rows = page.content || [];
+    out.push(...rows);
+    if (rows.length < 100 || out.length >= (page.totalFound || 0)) break;
+  }
+  return out;
+}
 
-  const candidates = (list.content || [])
+async function fetchSmartRecruiters({ token, name }) {
+  const list = await fetchSmartRecruitersList(token);
+
+  const candidates = list
     .map((p) => ({
       source: 'smartrecruiters',
       company: name,
@@ -98,7 +117,7 @@ async function fetchSmartRecruiters({ token, name }) {
       content: '',
       postedAt: p.releasedDate || null,
     }))
-    .filter((j) => hasAny(j.title, config.roleKeywords));
+    .filter(isRelevant);
 
   for (const j of candidates) {
     try {
@@ -698,7 +717,7 @@ function report({ all, relevant, scored, fresh, failures,
 // With the assignment below the run() call, that circular require resolved to
 // an empty object and discovery silently scored nothing.
 module.exports = { isRelevant, score, extractMinYears, relativeAge, isStale,
-  hasAny, interleave };
+  hasAny, interleave, fetchSmartRecruitersList };
 
 if (require.main === module) {
   run().catch((e) => {

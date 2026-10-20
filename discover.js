@@ -26,7 +26,7 @@
 const fs = require('fs');
 const path = require('path');
 const config = require('./config');
-const { isRelevant, score, hasAny } = require('./index');
+const { isRelevant, score, hasAny, fetchSmartRecruitersList } = require('./index');
 
 const CANDIDATE_FILE = path.join(__dirname, 'candidates.txt');
 const CONCURRENCY = 8;
@@ -79,11 +79,11 @@ const ATS = {
     probe: (t) => 'https://api.smartrecruiters.com/v1/companies/' + t + '/postings?limit=1',
     count: (d) => d.totalFound || 0,
     fetchAll: async (t) => {
-      const list = await getJSON(
-        'https://api.smartrecruiters.com/v1/companies/' + t + '/postings?limit=100');
+      // Shared with the poller: India only, every page, not the first 100.
+      const list = await fetchSmartRecruitersList(t);
       // Same whole-word matcher the poller uses. A raw join('|') regex was
       // substring matching, so 'sde' and 'fde' fired inside unrelated words.
-      const keep = (list.content || [])
+      const keep = list
         .map((p) => ({
           id: p.id,
           title: p.name,
